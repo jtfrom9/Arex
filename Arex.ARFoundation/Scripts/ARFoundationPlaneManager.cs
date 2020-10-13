@@ -18,6 +18,7 @@ namespace Arex.ARFoundation
         ARSession session;
         ARPlaneManager planeManager;
         ARRaycastManager raycastManager;
+        AROcclusionManager occlusionManager;
         int idCount = 0;
 
         ReactiveProperty<string> debugStatusProp = new ReactiveProperty<string>();
@@ -31,6 +32,7 @@ namespace Arex.ARFoundation
             session = FindObjectOfType<ARSession>();
             planeManager = GetComponent<ARPlaneManager>();
             raycastManager = GetComponent<ARRaycastManager>();
+            occlusionManager = GetComponentInChildren<AROcclusionManager>();
 
             Assert.IsNotNull(session);
             Assert.IsNotNull(planeManager);
@@ -159,5 +161,14 @@ namespace Arex.ARFoundation
         }
 
         public IEnumerable<IPlane> planes { get => planeDicts.Values; }
+
+        public bool EnableOcculusion {
+            get => (occlusionManager != null) ? occlusionManager.enabled : false;
+            set
+            {
+                if (occlusionManager != null)
+                    occlusionManager.enabled = value;
+            }
+        }
     }
 }

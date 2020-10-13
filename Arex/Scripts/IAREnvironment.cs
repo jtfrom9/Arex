@@ -20,7 +20,9 @@ namespace Arex
         bool EnableSearchPlanes { get; set; }
         IObservable<IPlane> Added { get; }
         IObservable<IPlane> Removed { get; }
-        IEnumerable<IPlane> planes { get; }
         Task<IPlane> SearchAnchoredPlane();
+
+        IEnumerable<IPlane> planes { get; }
+        bool EnableOcculusion { get; set; }
     }
 }

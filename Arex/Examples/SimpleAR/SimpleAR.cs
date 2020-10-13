@@ -12,6 +12,7 @@ namespace Arex.ARFoundation
         public Toggle toggleSession;
         public Toggle togglePlaneManager;
         public Toggle toggleVisualPlane;
+        public Toggle toggleOcculusion;
         public Text textDebug;
 
         [SerializeField] bool initSession = true;
@@ -59,6 +60,12 @@ namespace Arex.ARFoundation
                 {
                     plane.visible = v;
                 }
+            }).AddTo(this);
+
+            toggleOcculusion?.OnValueChangedAsObservable().Subscribe(v =>
+            {
+                Debug.Log($"toggleOcculusion: {v}");
+                arEnv.EnableOcculusion = v;
             }).AddTo(this);
 
             arEnv.DebugStatus.Subscribe(msg => {
