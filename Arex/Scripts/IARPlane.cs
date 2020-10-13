@@ -12,7 +12,7 @@ using UniRx.Triggers;
 
 namespace Arex
 {
-    public interface IPlane
+    public interface IARPlane
     {
         object internalObject { get; }
         int id { get; }
@@ -23,15 +23,15 @@ namespace Arex
         Vector2 size { get; }
         NativeArray<Vector2> boundary { get; }
 
-        IPlane subsumedBy { get; }
+        IARPlane subsumedBy { get; }
         bool visible { get; set; }
 
         string ToShortStrig();
     }
 
-    public static class IPlaneExtensions
+    public static class IARPlaneExtensions
     {
-        public static bool subsumed(this IPlane plane) {
+        public static bool subsumed(this IARPlane plane) {
             return plane.subsumedBy != null;
         }
     }

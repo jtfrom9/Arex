@@ -19,7 +19,14 @@ namespace Arex.ARFoundation
         [SerializeField] bool initPlaneSearch = false;
         [SerializeField] bool initVisiblePlane = true;
 
-        IAREnvironment arEnv;
+        List<string> logLines = new List<string>();
+        [SerializeField] int lineOfLog = 5;
+
+        // public void Init(IARSession session, IARPlaneManager planeManager)
+        // {
+        //     this.session = session;
+        //     this.planeManager = planeManager;
+        // }
 
         void Awake()
         {
@@ -27,14 +34,25 @@ namespace Arex.ARFoundation
             Assert.IsNotNull(togglePlaneManager);
             Assert.IsNotNull(toggleVisualPlane);
             Assert.IsNotNull(textDebug);
+        }
 
-            arEnv = FindObjectOfType<ARFoundationPlaneManager>() as IAREnvironment;
-            Debug.Log($"arEnv = {arEnv}");
+
+        void printLog(string msg)
+        {
+            logLines.Add($"{System.DateTime.Now.ToString("HH:mm:ss")} | {msg}");
+            if(logLines.Count > 5)
+                logLines.RemoveAt(0);
+            textDebug.text = string.Join("\n", logLines);
         }
 
         void Start()
         {
-            arEnv.Added.Subscribe(plane => {
+            var session = ARServiceLocator.Instant.GetSession();
+            var planeManager = ARServiceLocator.Instant.GetPlaneManager();
+
+            Debug.Log($"{session}");
+
+            planeManager.Added.Subscribe(plane => {
                 Debug.Log($"Added: {plane}");
                 plane.visible = initVisiblePlane;
             }).AddTo(this);
@@ -42,21 +60,21 @@ namespace Arex.ARFoundation
             toggleSession.isOn = initSession;
             toggleSession.OnValueChangedAsObservable().Subscribe(v => {
                 Debug.Log($"toggleSession: {v}");
-                arEnv.EnableSession = v;
+                session.EnableSession = v;
             }).AddTo(this);
 
             togglePlaneManager.isOn = initPlaneSearch;
             togglePlaneManager.OnValueChangedAsObservable().Subscribe(v =>
             {
                 Debug.Log($"togglePlaneManager: {v}");
-                arEnv.EnableSearchPlanes = v;
+                planeManager.EnableSearchPlanes = v;
             }).AddTo(this);
 
             toggleVisualPlane.isOn = initVisiblePlane;
             toggleVisualPlane.OnValueChangedAsObservable().Subscribe(v =>
             {
                 Debug.Log($"toggleVisualPlane: {v}");
-                foreach (var plane in arEnv.planes)
+                foreach (var plane in planeManager.planes)
                 {
                     plane.visible = v;
                 }
@@ -65,11 +83,16 @@ namespace Arex.ARFoundation
             toggleOcculusion?.OnValueChangedAsObservable().Subscribe(v =>
             {
                 Debug.Log($"toggleOcculusion: {v}");
-                arEnv.EnableOcculusion = v;
+                planeManager.EnableOcculusion = v;
             }).AddTo(this);
 
-            arEnv.DebugStatus.Subscribe(msg => {
-                textDebug.text = msg;
+            session.DebugStatus.Subscribe(msg => {
+                printLog($"Session: {msg}");
+            }).AddTo(this);
+
+            planeManager.DebugStatus.Subscribe(msg =>
+            {
+                printLog($"PlaneManager: {msg}");
             }).AddTo(this);
         }
     }

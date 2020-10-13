@@ -42,16 +42,20 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
-    "com.jtfrom9.input-observable": "0.1.2"
+    "com.jtfrom9.input-observable": "0.1.2",
+    "com.cysharp.unitask": "2.0.36",
+    "com.svermeulen.extenject": "9.2.0-stcf3"
   },
   "scopedRegistries": [
     {
       "name": "package.openupm.com",
       "url": "https://package.openupm.com",
       "scopes": [
+        "com.cysharp.unitask",
         "com.jtfrom9.input-observable",
         "com.neuecc.unirx",
-        "com.openupm"
+        "com.openupm",
+        "com.svermeulen.extenject"
       ]
     }
   ]

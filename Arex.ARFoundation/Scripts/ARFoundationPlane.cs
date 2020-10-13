@@ -7,25 +7,25 @@ using Arex;
 namespace Arex.ARFoundation
 {
     [RequireComponent(typeof(ARPlane))]
-    public class ARFoundationPlane : MonoBehaviour, IPlane
+    public class ARFoundationPlane : MonoBehaviour, IARPlane
     {
         ARPlane nativePlane;
         int _id;
         ARFoundationPlane subsumePlane;
 
-        object IPlane.internalObject { get => nativePlane; }
+        object IARPlane.internalObject { get => nativePlane; }
         public int id {
             get => this._id;
             set => this._id = value;
         }
 
-        Vector3 IPlane.normal { get => nativePlane.normal; }
-        Vector3 IPlane.center { get => nativePlane.center; }
-        Vector2 IPlane.extents { get => nativePlane.extents; }
-        Vector2 IPlane.size { get => nativePlane.size; }
-        NativeArray<Vector2> IPlane.boundary { get => nativePlane.boundary; }
+        Vector3 IARPlane.normal { get => nativePlane.normal; }
+        Vector3 IARPlane.center { get => nativePlane.center; }
+        Vector2 IARPlane.extents { get => nativePlane.extents; }
+        Vector2 IARPlane.size { get => nativePlane.size; }
+        NativeArray<Vector2> IARPlane.boundary { get => nativePlane.boundary; }
 
-        public IPlane subsumedBy {
+        public IARPlane subsumedBy {
             get
             {
                 if (nativePlane.subsumedBy == null)
@@ -40,7 +40,7 @@ namespace Arex.ARFoundation
             }
         }
 
-        bool IPlane.visible
+        bool IARPlane.visible
         {
             get => gameObject.activeSelf;
             set => gameObject.SetActive(value);

@@ -11,44 +11,40 @@ using Arex;
 
 namespace Arex.ARFoundation
 {
-    [RequireComponent(typeof(ARPlaneManager))]
-    [RequireComponent(typeof(ARRaycastManager))]
-    public class ARFoundationPlaneManager : MonoBehaviour, IAREnvironment
+    public class ARFoundationPlaneManager : MonoBehaviour, IARPlaneManager
     {
-        ARSession session;
         ARPlaneManager planeManager;
         ARRaycastManager raycastManager;
         AROcclusionManager occlusionManager;
         int idCount = 0;
 
         ReactiveProperty<string> debugStatusProp = new ReactiveProperty<string>();
-        Subject<IPlane> addedSubject = new Subject<IPlane>();
-        Subject<IPlane> removedSubject = new Subject<IPlane>();
+        int lastNumPlanes = 0;
+        Subject<IARPlane> addedSubject = new Subject<IARPlane>();
+        Subject<IARPlane> removedSubject = new Subject<IARPlane>();
 
-        Dictionary<ARPlane, IPlane> planeDicts = new Dictionary<ARPlane, IPlane>();
+        Dictionary<ARPlane, IARPlane> planeDicts = new Dictionary<ARPlane, IARPlane>();
 
         void Awake()
         {
-            session = FindObjectOfType<ARSession>();
+            ARServiceLocator.Instant.Register(this);
+
             planeManager = GetComponent<ARPlaneManager>();
             raycastManager = GetComponent<ARRaycastManager>();
             occlusionManager = GetComponentInChildren<AROcclusionManager>();
-
-            Assert.IsNotNull(session);
-            Assert.IsNotNull(planeManager);
-            Assert.IsNotNull(raycastManager);
-
             StopSearchPlanes();
         }
 
         void updateDebugStatus()
         {
             var plist = planes.Where(p => !p.subsumed()).ToList();
+            var count = plist.Count();
             debugStatusProp.Value =
-                string.Format("Session: {0}, Planes: {1} ({2})",
-                    ARSession.state.ToString(),
-                    plist.Count(),
+                string.Format("Planes: {0}({1}) ({2})",
+                    count,
+                    count - lastNumPlanes,
                     string.Join(",", plist.Select(p => $"#{p.id.ToString()}")));
+            lastNumPlanes = count;
         }
 
         void onAddedPlane(ARPlane nativePlane)
@@ -64,7 +60,7 @@ namespace Arex.ARFoundation
             }
         }
 
-        void onRemovedSinglePlane(ARPlane nativePlane)
+        void onRemovedPlane(ARPlane nativePlane)
         {
             var plane = planeDicts[nativePlane];
             removedSubject.OnNext(plane);
@@ -82,67 +78,63 @@ namespace Arex.ARFoundation
 
         void Start()
         {
-            Observable.FromEvent<ARPlanesChangedEventArgs>(h => planeManager.planesChanged += h, h => planeManager.planesChanged -= h)
-                // .Where(_ => search)
-                .Subscribe(e =>
-                {
-                    var (added, updated, removed) = (false, false, false);
+            if (planeManager != null)
+            {
+                Observable.FromEvent<ARPlanesChangedEventArgs>(h => planeManager.planesChanged += h, h => planeManager.planesChanged -= h)
+                    .Subscribe(e =>
+                    {
+                        var (added, updated, removed) = (false, false, false);
 
-                    foreach (var nativePlane in e.added)
-                    {
-                        onAddedPlane(nativePlane);
-                        added = true;
-                    }
-                    foreach (var nativePlane in e.updated)
-                    {
-                        updated = true;
-                    }
-                    foreach (var nativePlane in e.removed)
-                    {
-                        onRemovedSinglePlane(nativePlane);
-                        removed = true;
-                    }
-                    if (added || removed)
-                    {
-                        Debug.Log($"<color=green>Planes: {planeDicts.Count} (new: {e.added.Count}, removed: {e.removed.Count})</color>");
-                        updateDebugStatus();
-                    }
-                }).AddTo(this);
-
-            Observable.FromEvent<ARSessionStateChangedEventArgs>(h => ARSession.stateChanged += h, h => ARSession.stateChanged -= h)
-                .Subscribe(arg =>
-                {
-                    Debug.Log($"<color=red>Session: {arg.state.ToString()}</color>");
-                    updateDebugStatus();
-                }).AddTo(this);
+                        foreach (var nativePlane in e.added)
+                        {
+                            onAddedPlane(nativePlane);
+                            added = true;
+                        }
+                        foreach (var nativePlane in e.updated)
+                        {
+                            updated = true;
+                        }
+                        foreach (var nativePlane in e.removed)
+                        {
+                            onRemovedPlane(nativePlane);
+                            removed = true;
+                        }
+                        if (added || removed)
+                        {
+                            Debug.Log($"<color=green>Planes: {planeDicts.Count} (new: {e.added.Count}, removed: {e.removed.Count})</color>");
+                            updateDebugStatus();
+                        }
+                    }).AddTo(this);
+            }
         }
 
-        bool IAREnvironment.EnableSession
-        {
-            get => session.enabled;
-            set => session.enabled = value;
-        }
-        IReadOnlyReactiveProperty<string> IAREnvironment.DebugStatus { get => debugStatusProp; }
+        IReadOnlyReactiveProperty<string> IARPlaneManager.DebugStatus { get => debugStatusProp; }
 
         void StartSearchPlanes()
         {
-            foreach (var trackable in planeManager.trackables)
+            if (planeManager != null)
             {
-                var nativePlane = trackable as ARPlane;
-                onAddedPlane(nativePlane);
+                foreach (var trackable in planeManager.trackables)
+                {
+                    var nativePlane = trackable as ARPlane;
+                    onAddedPlane(nativePlane);
+                }
+                planeManager.enabled = true;
             }
-            planeManager.enabled = true;
         }
 
         void StopSearchPlanes()
         {
-            planeManager.enabled = false;
-            // onRemovedAllPlane();
+            if (planeManager != null)
+            {
+                planeManager.enabled = false;
+                // onRemovedAllPlane();
+            }
         }
 
-        bool IAREnvironment.EnableSearchPlanes
+        bool IARPlaneManager.EnableSearchPlanes
         {
-            get => planeManager.enabled;
+            get => (planeManager != null) ? planeManager.enabled : false;
             set
             {
                 if (value)
@@ -152,15 +144,15 @@ namespace Arex.ARFoundation
             }
         }
 
-        IObservable<IPlane> IAREnvironment.Added { get => addedSubject; }
-        IObservable<IPlane> IAREnvironment.Removed { get => removedSubject; }
+        IObservable<IARPlane> IARPlaneManager.Added { get => addedSubject; }
+        IObservable<IARPlane> IARPlaneManager.Removed { get => removedSubject; }
 
-        async Task<IPlane> IAREnvironment.SearchAnchoredPlane()
+        async Task<IARPlane> IARPlaneManager.SearchAnchoredPlane()
         {
             return null;
         }
 
-        public IEnumerable<IPlane> planes { get => planeDicts.Values; }
+        public IEnumerable<IARPlane> planes { get => planeDicts.Values; }
 
         public bool EnableOcculusion {
             get => (occlusionManager != null) ? occlusionManager.enabled : false;

@@ -12,17 +12,16 @@ using UniRx.Triggers;
 
 namespace Arex
 {
-    public interface IAREnvironment
+    public interface IARPlaneManager
     {
-        bool EnableSession { get; set; }
         IReadOnlyReactiveProperty<string> DebugStatus { get; }
 
         bool EnableSearchPlanes { get; set; }
-        IObservable<IPlane> Added { get; }
-        IObservable<IPlane> Removed { get; }
-        Task<IPlane> SearchAnchoredPlane();
+        IObservable<IARPlane> Added { get; }
+        IObservable<IARPlane> Removed { get; }
+        Task<IARPlane> SearchAnchoredPlane();
 
-        IEnumerable<IPlane> planes { get; }
+        IEnumerable<IARPlane> planes { get; }
         bool EnableOcculusion { get; set; }
     }
 }

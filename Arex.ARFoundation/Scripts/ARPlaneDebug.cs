@@ -15,12 +15,12 @@ namespace Arex.ARFoundation
         public string subsumedBy;
 
         ARPlane nativePlane;
-        IPlane plane;
+        IARPlane plane;
 
         void Awake()
         {
             nativePlane = GetComponent<ARPlane>();
-            plane = GetComponent<ARFoundationPlane>() as IPlane;
+            plane = GetComponent<ARFoundationPlane>() as IARPlane;
 
             Assert.IsNotNull(nativePlane);
             Assert.IsNotNull(plane);
