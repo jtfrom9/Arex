@@ -5,9 +5,17 @@ using UniRx;
 
 namespace Arex
 {
+    public enum ARSessionState
+    {
+        Unsupported,
+        Ready,
+        Tracking
+    }
+
     public interface IARSession
     {
         bool EnableSession { get; set; }
-        IReadOnlyReactiveProperty<string> DebugStatus { get; }
+        IReadOnlyReactiveProperty<ARSessionState> State { get; }
+        string LostReason { get; }
     }
 }

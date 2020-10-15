@@ -10,14 +10,15 @@ namespace Arex.ARFoundation
     public class ARFoundationSession : MonoBehaviour, IARSession
     {
         ARSession session;
-        ReactiveProperty<string> debugStatusProp = new ReactiveProperty<string>();
+        ReactiveProperty<ARSessionState> stateProp = new ReactiveProperty<ARSessionState>(ARSessionState.Unsupported);
 
         bool IARSession.EnableSession
         {
             get => session.enabled;
             set => session.enabled = value;
         }
-        IReadOnlyReactiveProperty<string> IARSession.DebugStatus { get => debugStatusProp; }
+        IReadOnlyReactiveProperty<ARSessionState> IARSession.State { get => stateProp; }
+        string IARSession.LostReason { get => ARSession.notTrackingReason.ToString(); }
 
         void Awake()
         {
@@ -32,9 +33,18 @@ namespace Arex.ARFoundation
             Observable.FromEvent<ARSessionStateChangedEventArgs>(h => ARSession.stateChanged += h, h => ARSession.stateChanged -= h)
                 .Subscribe(arg =>
                 {
-                    var msg = $"{arg.state.ToString()}, {ARSession.notTrackingReason.ToString()}";
-                    Debug.Log($"<color=red>{msg}</color>");
-                    debugStatusProp.Value = msg;
+                    switch(arg.state) {
+                        case UnityEngine.XR.ARFoundation.ARSessionState.Ready:
+                        case UnityEngine.XR.ARFoundation.ARSessionState.SessionInitializing:
+                            stateProp.Value = ARSessionState.Ready;
+                            break;
+                        case UnityEngine.XR.ARFoundation.ARSessionState.SessionTracking:
+                            stateProp.Value = ARSessionState.Tracking;
+                            break;
+                        default:
+                            stateProp.Value = ARSessionState.Unsupported;
+                            break;
+                    }
                 }).AddTo(this);
         }
 

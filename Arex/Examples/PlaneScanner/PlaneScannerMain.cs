@@ -48,9 +48,10 @@ namespace Arex.Examples
                 buttonStartScan.interactable = true;
             }).AddTo(this);
 
-            ARServiceLocator.Instant.GetSession()?.DebugStatus.Subscribe(msg =>
+            var session = ARServiceLocator.Instant.GetSession();
+            session?.State.Subscribe(state =>
             {
-                printLog($"Session: {msg}");
+                printLog($"Session: {state},{session.LostReason}");
             }).AddTo(this);
 
             ARServiceLocator.Instant.GetPlaneManager()?.DebugStatus.Subscribe(msg =>

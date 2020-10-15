@@ -92,8 +92,8 @@ namespace Arex.ARFoundation
                 }).AddTo(this);
             }
 
-            session.DebugStatus.Subscribe(msg => {
-                printLog($"Session: {msg}");
+            session.State.Subscribe(s => {
+                printLog($"Session: {s.ToString()}, {session.LostReason}");
             }).AddTo(this);
 
             planeManager.DebugStatus.Subscribe(msg =>
