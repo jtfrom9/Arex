@@ -11,6 +11,8 @@ using Arex;
 
 namespace Arex.ARFoundation
 {
+    [RequireComponent(typeof(ARPlaneManager))]
+    [RequireComponent(typeof(ARRaycastManager))]
     public class ARFoundationPlaneManager : MonoBehaviour, IARPlaneManager
     {
         ARPlaneManager planeManager;
@@ -153,14 +155,5 @@ namespace Arex.ARFoundation
         }
 
         public IEnumerable<IARPlane> planes { get => planeDicts.Values; }
-
-        public bool EnableOcculusion {
-            get => (occlusionManager != null) ? occlusionManager.enabled : false;
-            set
-            {
-                if (occlusionManager != null)
-                    occlusionManager.enabled = value;
-            }
-        }
     }
 }

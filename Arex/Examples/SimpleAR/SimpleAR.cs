@@ -18,6 +18,7 @@ namespace Arex.ARFoundation
         [SerializeField] bool initSession = true;
         [SerializeField] bool initPlaneSearch = false;
         [SerializeField] bool initVisiblePlane = true;
+        [SerializeField] bool initOcclusion = false;
 
         List<string> logLines = new List<string>();
         [SerializeField] int lineOfLog = 5;
@@ -49,6 +50,7 @@ namespace Arex.ARFoundation
         {
             var session = ARServiceLocator.Instant.GetSession();
             var planeManager = ARServiceLocator.Instant.GetPlaneManager();
+            var occlutionManager = ARServiceLocator.Instant.GetOcclusionManager();
 
             Debug.Log($"{session}");
 
@@ -80,11 +82,15 @@ namespace Arex.ARFoundation
                 }
             }).AddTo(this);
 
-            toggleOcculusion?.OnValueChangedAsObservable().Subscribe(v =>
+            if (toggleOcculusion != null)
             {
-                Debug.Log($"toggleOcculusion: {v}");
-                planeManager.EnableOcculusion = v;
-            }).AddTo(this);
+                toggleOcculusion.isOn = initOcclusion;
+                toggleOcculusion.OnValueChangedAsObservable().Subscribe(v =>
+                {
+                    Debug.Log($"toggleOcculusion: {v}");
+                    occlutionManager.EnableOcculusion = v;
+                }).AddTo(this);
+            }
 
             session.DebugStatus.Subscribe(msg => {
                 printLog($"Session: {msg}");

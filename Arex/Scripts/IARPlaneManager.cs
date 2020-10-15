@@ -22,6 +22,5 @@ namespace Arex
         Task<IARPlane> SearchAnchoredPlane();
 
         IEnumerable<IARPlane> planes { get; }
-        bool EnableOcculusion { get; set; }
     }
 }
