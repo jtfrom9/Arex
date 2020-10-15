@@ -55,16 +55,18 @@ namespace Arex
         }
 
         UniTask scanPlanes(CompositeDisposable dispoable,
-                int planes,
+                int newPlanes,
                 System.Predicate<IARPlane> condition)
         {
             var utc = new UniTaskCompletionSource();
+            var currentPlanes = planeManager_.planes.Where(p => condition(p)).Count();
+
             planeManager_.Added.Subscribe(plane =>
             {
                 Debug.Log($"<color=blue>new plane: {plane.ToString()}, {plane.subsumed()}</color>");
-                if (planeManager_.planes.Where(p => condition(p)).Count() >= planes)
+                if (planeManager_.planes.Where(p => condition(p)).Count() >= currentPlanes + newPlanes)
                 {
-                    Debug.Log($"found {planes}");
+                    Debug.Log($"found {newPlanes}");
                     utc.TrySetResult();
                 }
             }).AddTo(dispoable);
@@ -86,7 +88,10 @@ namespace Arex
             tasks.Add(scanPlanes(disposable, planes, condition)); // index: 0
 
             // timeout
-            // tasks.Add(UniTask.Delay(timeout * 1000, cancellationToken: token)); // index: 1
+            if (timeout > 0)
+            {
+                tasks.Add(UniTask.Delay(timeout * 1000, cancellationToken: token)); // index: 1
+            }
 
             var index = await UniTask.WhenAny(tasks);
 

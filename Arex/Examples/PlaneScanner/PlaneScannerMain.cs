@@ -34,8 +34,8 @@ namespace Arex.Examples
 
                 printLog("Start Scan Plane");
 
-                var ret = await planeScanner.StartScan(planes: 1,
-                    timeout: 3,
+                var ret = await planeScanner.StartScan(planes: 3,
+                    timeout: 30,
                     condition: PlaneConditionMatcher.IsValidPlane,
                     token: this.GetCancellationTokenOnDestroy());
 
