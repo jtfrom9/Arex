@@ -54,19 +54,20 @@ namespace Arex.ARFoundation
             if (!planeDicts.ContainsKey(nativePlane))
             {
                 var plane = nativePlane.gameObject.GetComponent<ARFoundationPlane>();
-                Assert.IsNotNull(plane);
+                Assert.IsNotNull(plane, "No ARFoundationPlane");
                 plane.id = idCount;
                 idCount++;
-                addedSubject.OnNext(plane);
-                planeDicts[nativePlane] = plane;
+
+                planeDicts[nativePlane] = plane; // hold by planeDicts first
+                addedSubject.OnNext(plane);  // then notify
             }
         }
 
         void onRemovedPlane(ARPlane nativePlane)
         {
             var plane = planeDicts[nativePlane];
-            removedSubject.OnNext(plane);
             planeDicts.Remove(nativePlane);
+            removedSubject.OnNext(plane);
         }
 
         // void onRemovedAllPlane()

@@ -12,6 +12,11 @@ using UniRx.Triggers;
 
 namespace Arex
 {
+    [Flags]
+    public enum ARPlaneDebugFlag {
+        ShowInfo = 1
+    }
+
     public interface IARPlane
     {
         object internalObject { get; }
@@ -27,6 +32,8 @@ namespace Arex
         bool visible { get; set; }
 
         string ToShortStrig();
+
+        void SetDebug(ARPlaneDebugFlag flag);
     }
 
     public static class IARPlaneExtensions
