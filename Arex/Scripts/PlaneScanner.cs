@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -31,7 +32,7 @@ namespace Arex
 
     public static class PlaneConditionMatcher
     {
-        public static System.Predicate<IARPlane> IsValidPlane = (plane) => !plane.subsumed();
+        public static Predicate<IARPlane> IsValidPlane = (plane) => !plane.subsumed();
     }
 
     public class PlaneScanner : MonoBehaviour
@@ -53,7 +54,7 @@ namespace Arex
         UniTask scanPlanes(CompositeDisposable dispoable,
                 int currentPlanes,
                 int newPlanes,
-                System.Predicate<IARPlane> condition,
+                Predicate<IARPlane> condition,
                 CancellationToken token)
         {
             var utc = new UniTaskCompletionSource();
@@ -83,12 +84,29 @@ namespace Arex
         async public UniTask<PlaneScanResultArg> StartScan(
             int newPlanes,
             int timeout,
-            System.Predicate<IARPlane> condition,
-            CancellationToken token)
+            Predicate<IARPlane> condition,
+            CancellationToken token,
+            bool waitFirstPlane = false,
+            int firstTimeout=10)
         {
             planeManager_.EnableSearchPlanes = true;
             var disposable = new CompositeDisposable();
             var currentPlanes = planeManager_.planes.Where(p => condition(p)).Count();
+
+            if (waitFirstPlane && newPlanes > 1)
+            {
+                newPlanes--;
+                try
+                {
+                    await scanPlanes(disposable, currentPlanes, 1, condition, token).Timeout(TimeSpan.FromSeconds(firstTimeout));
+                }catch(TimeoutException)
+                {
+                    return new PlaneScanResultArg
+                    {
+                        result = PlaneScanResult.Timeout,
+                    };
+                }
+            }
 
             // meature in session error
             float errorTime = 0;
@@ -102,20 +120,27 @@ namespace Arex
             var scanTask = scanPlanes(disposable, currentPlanes, newPlanes, condition, token); // index: 0
 
             bool did_timeout = false;
-            System.Exception error = null;
+            Exception error = null;
             try
             {
                 if (timeout <= 0)
                 {
                     await scanTask;
-                } else {
-                    await scanTask.Timeout(System.TimeSpan.FromSeconds(timeout));
                 }
-            }catch (System.TimeoutException)
+                else
+                {
+                    await scanTask.Timeout(TimeSpan.FromSeconds(timeout));
+                }
+            }
+            catch (TimeoutException)
             {
                 did_timeout = true;
-            }catch(System.OperationCanceledException) {
-            }catch(System.Exception e) {
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception e)
+            {
                 error = e;
             }
 
@@ -131,10 +156,13 @@ namespace Arex
 
             if (!token.IsCancellationRequested)
             {
-                if(!did_timeout) {
+                if (!did_timeout)
+                {
                     ret.result = PlaneScanResult.Found;
-                } else{
-                    if ((float)timeout / 2 < errorTime || error!=null)
+                }
+                else
+                {
+                    if ((float)timeout / 2 < errorTime || error != null)
                     {
                         ret.result = PlaneScanResult.Error;
                         ret.message = (error == null) ? $"Session Error ({session.LostReason})" : $"{error.ToString()}";
@@ -144,7 +172,9 @@ namespace Arex
                         ret.result = PlaneScanResult.Timeout;
                     }
                 }
-            } else {
+            }
+            else
+            {
                 ret.result = PlaneScanResult.Cancel;
             }
             return ret;
