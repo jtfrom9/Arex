@@ -190,7 +190,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Scan New Plane
+  m_Text: 
 --- !u!222 &42048047
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -824,9 +824,10 @@ GameObject:
   - component: {fileID: 1180399971}
   - component: {fileID: 1180399974}
   - component: {fileID: 1180399973}
+  - component: {fileID: 1180399975}
   - component: {fileID: 1180399972}
   m_Layer: 5
-  m_Name: StartScanButton
+  m_Name: ScanButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -932,6 +933,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1180399970}
   m_CullTransparentMesh: 0
+--- !u!114 &1180399975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1180399970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57557b3203d5945a791523335bbbc8a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 42048046}
 --- !u!1 &1274483214
 GameObject:
   m_ObjectHideFlags: 0
@@ -962,8 +976,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71fb264d278554a2dbf82f5d4ff0ea8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 625023613}
-  radius: 5
 --- !u!4 &1274483216
 Transform:
   m_ObjectHideFlags: 0
@@ -991,7 +1003,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   planeScanner: {fileID: 1274483215}
-  buttonStartScan: {fileID: 1180399972}
+  button: {fileID: 1180399972}
   textDebug: {fileID: 104513367}
   lineOfLog: 5
 --- !u!1 &1641174056

@@ -102,6 +102,7 @@ namespace Arex
             var scanTask = scanPlanes(disposable, currentPlanes, newPlanes, condition, token); // index: 0
 
             bool did_timeout = false;
+            System.Exception error = null;
             try
             {
                 if (timeout <= 0)
@@ -113,7 +114,11 @@ namespace Arex
             }catch (System.TimeoutException)
             {
                 did_timeout = true;
+            }catch(System.OperationCanceledException) {
+            }catch(System.Exception e) {
+                error = e;
             }
+
             var planesFound = planeManager_.planes.Where(p => condition(p)).Count() - currentPlanes;
 
             planeManager_.EnableSearchPlanes = false;
@@ -129,14 +134,14 @@ namespace Arex
                 if(!did_timeout) {
                     ret.result = PlaneScanResult.Found;
                 } else{
-                    if ((float)timeout / 2 > errorTime)
+                    if ((float)timeout / 2 < errorTime || error!=null)
                     {
-                        ret.result = PlaneScanResult.Timeout;
+                        ret.result = PlaneScanResult.Error;
+                        ret.message = (error == null) ? $"Session Error ({session.LostReason})" : $"{error.ToString()}";
                     }
                     else
                     {
-                        ret.result = PlaneScanResult.Error;
-                        ret.message = $"Session Error ({session.LostReason})";
+                        ret.result = PlaneScanResult.Timeout;
                     }
                 }
             } else {

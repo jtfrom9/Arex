@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
@@ -11,8 +12,10 @@ namespace Arex.Examples
     {
         public PlaneScanner planeScanner;
 
-        public Button buttonStartScan;
+        public Button button;
         public Text textDebug;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         List<string> logLines = new List<string>();
         [SerializeField] int lineOfLog = 5;
@@ -27,37 +30,54 @@ namespace Arex.Examples
             textDebug.text = string.Join("\n", logLines);
         }
 
+        async UniTask scan()
+        {
+            int planes = 3;
+            int timeout = 10;
+            printLog($"Start Scan Plane (planes: {planes}, timeout: {timeout})");
+
+            var ret = await planeScanner.StartScan(
+                planes,
+                timeout,
+                condition: PlaneConditionMatcher.IsValidPlane,
+                token: this.tokenSource.Token);
+
+            if (ret.result == PlaneScanResult.Found)
+            {
+                printLog($"Scan done: {ret.planesFound} planes found.");
+            }
+            else if (ret.result == PlaneScanResult.Timeout)
+            {
+                printLog($"Scan timeout: {ret.planesFound} planes found.");
+            }
+            else if (ret.result == PlaneScanResult.Error)
+            {
+                printLog($"Scan error: {ret.message}");
+            }
+            else if (ret.result == PlaneScanResult.Cancel)
+            {
+                printLog($"Scan cancel");
+            }
+
+            foreach (var plane in planeScanner.planeManager.planes)
+            {
+                plane.SetDebug(ARPlaneDebugFlag.ShowInfo);
+            }
+        }
+
         void Start()
         {
-            buttonStartScan.OnClickAsObservable().Subscribe(async _ => {
-                buttonStartScan.interactable = false;
-
-                int planes = 3;
-                int timeout = 10;
-                printLog($"Start Scan Plane (planes: {planes}, timeout: {timeout})");
-
-                var ret = await planeScanner.StartScan(
-                    planes,
-                    timeout,
-                    condition: PlaneConditionMatcher.IsValidPlane,
-                    token: this.GetCancellationTokenOnDestroy());
-
-                if (ret.result == PlaneScanResult.Found)
-                {
-                    printLog($"Scan done: {ret.planesFound} planes found.");
-                } else if(ret.result==PlaneScanResult.Timeout)
-                {
-                    printLog($"Scan timeout: {ret.planesFound} planes found.");
-                } else if(ret.result==PlaneScanResult.Error) {
-                    printLog($"Scan error: {ret.message}");
-                } else if (ret.result == PlaneScanResult.Cancel) {
-                    printLog($"Scan cancel");
+            var scanButton = button.gameObject.GetComponent<ScanButton>();
+            button.OnClickAsObservable().Subscribe(async _ => {
+                if(scanButton.Scan) {
+                    scanButton.Switch();
+                    await scan();
+                    scanButton.Switch();
+                } else {
+                    this.tokenSource.Cancel();
+                    this.tokenSource.Dispose();
+                    this.tokenSource = new CancellationTokenSource();
                 }
-
-                foreach(var plane in planeScanner.planeManager.planes) {
-                    plane.SetDebug(ARPlaneDebugFlag.ShowInfo);
-                }
-                buttonStartScan.interactable = true;
             }).AddTo(this);
 
             var session = ARServiceLocator.Instant.GetSession();
@@ -70,6 +90,12 @@ namespace Arex.Examples
             {
                 printLog($"PlaneManager: {msg}");
             }).AddTo(this);
+        }
+
+        void OnDestroy()
+        {
+            this.tokenSource.Cancel();
+            this.tokenSource.Dispose();
         }
     }
 }
