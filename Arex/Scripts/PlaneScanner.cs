@@ -36,10 +36,6 @@ namespace Arex
 
     public class PlaneScanner : MonoBehaviour
     {
-        public Transform _camera;
-
-        [SerializeField] float radius = 5.0f;
-
         IUserGuidelineController guidelineController;
         IARSession session;
         IARPlaneManager planeManager_;
@@ -55,70 +51,95 @@ namespace Arex
         }
 
         UniTask scanPlanes(CompositeDisposable dispoable,
+                int currentPlanes,
                 int newPlanes,
-                System.Predicate<IARPlane> condition)
+                System.Predicate<IARPlane> condition,
+                CancellationToken token)
         {
             var utc = new UniTaskCompletionSource();
-            var currentPlanes = planeManager_.planes.Where(p => condition(p)).Count();
 
             planeManager_.Added.Subscribe(plane =>
             {
                 Debug.Log($"<color=blue>new plane: {plane.ToString()}, {plane.subsumed()}</color>");
-                if (planeManager_.planes.Where(p => condition(p)).Count() >= currentPlanes + newPlanes)
+                var totalPlanes = planeManager_.planes.Where(p => condition(p)).Count();
+                if (totalPlanes >= currentPlanes + newPlanes)
                 {
                     Debug.Log($"found {newPlanes}");
                     utc.TrySetResult();
                 }
             }).AddTo(dispoable);
+
+            this.UpdateAsObservable().Subscribe(_ => {
+                if (token.IsCancellationRequested)
+                {
+                    var totalPlanes = planeManager_.planes.Where(p => condition(p)).Count();
+                    utc.TrySetCanceled();
+                }
+            }).AddTo(dispoable);
+
             return utc.Task;
         }
 
         async public UniTask<PlaneScanResultArg> StartScan(
-            int planes,
+            int newPlanes,
             int timeout,
             System.Predicate<IARPlane> condition,
             CancellationToken token)
         {
             planeManager_.EnableSearchPlanes = true;
             var disposable = new CompositeDisposable();
+            var currentPlanes = planeManager_.planes.Where(p => condition(p)).Count();
 
-            var tasks = new List<UniTask>();
+            // meature in session error
+            float errorTime = 0;
+            this.UpdateAsObservable().Subscribe(_ =>
+            {
+                if (session.State.Value != ARSessionState.Tracking)
+                    errorTime += Time.deltaTime;
+            }).AddTo(disposable);
 
             // scan planes
-            tasks.Add(scanPlanes(disposable, planes, condition)); // index: 0
+            var scanTask = scanPlanes(disposable, currentPlanes, newPlanes, condition, token); // index: 0
 
-            // timeout
-            if (timeout > 0)
+            bool did_timeout = false;
+            try
             {
-                tasks.Add(UniTask.Delay(timeout * 1000, cancellationToken: token)); // index: 1
+                if (timeout <= 0)
+                {
+                    await scanTask;
+                } else {
+                    await scanTask.Timeout(System.TimeSpan.FromSeconds(timeout));
+                }
+            }catch (System.TimeoutException)
+            {
+                did_timeout = true;
             }
-
-            var index = await UniTask.WhenAny(tasks);
+            var planesFound = planeManager_.planes.Where(p => condition(p)).Count() - currentPlanes;
 
             planeManager_.EnableSearchPlanes = false;
             disposable.Dispose();
 
             var ret = new PlaneScanResultArg
             {
-                planesFound = planeManager_.planes.Where(p => condition(p)).Count()
+                planesFound = planesFound
             };
 
             if (!token.IsCancellationRequested)
             {
-                switch (index)
-                {
-                    case 0:
-                        ret.result = PlaneScanResult.Found;
-                        break;
-                    case 1:
+                if(!did_timeout) {
+                    ret.result = PlaneScanResult.Found;
+                } else{
+                    if ((float)timeout / 2 > errorTime)
+                    {
                         ret.result = PlaneScanResult.Timeout;
-                        break;
-                    default:
+                    }
+                    else
+                    {
                         ret.result = PlaneScanResult.Error;
-                        break;
+                        ret.message = $"Session Error ({session.LostReason})";
+                    }
                 }
-            } else
-            {
+            } else {
                 ret.result = PlaneScanResult.Cancel;
             }
             return ret;
@@ -130,16 +151,6 @@ namespace Arex
             {
                 this.tokenSource.Cancel();
                 this.tokenSource.Dispose();
-            }
-        }
-
-        public void Cancel()
-        {
-            if (this.tokenSource != null)
-            {
-                this.tokenSource.Cancel();
-                this.tokenSource.Dispose();
-                this.tokenSource = null;
             }
         }
     }

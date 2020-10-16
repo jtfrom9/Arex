@@ -32,19 +32,31 @@ namespace Arex.Examples
             buttonStartScan.OnClickAsObservable().Subscribe(async _ => {
                 buttonStartScan.interactable = false;
 
-                printLog("Start Scan Plane");
+                int planes = 3;
+                int timeout = 10;
+                printLog($"Start Scan Plane (planes: {planes}, timeout: {timeout})");
 
-                var ret = await planeScanner.StartScan(planes: 3,
-                    timeout: 30,
+                var ret = await planeScanner.StartScan(
+                    planes,
+                    timeout,
                     condition: PlaneConditionMatcher.IsValidPlane,
                     token: this.GetCancellationTokenOnDestroy());
 
-                printLog($"DONE {ret.result.ToString()}, planes: {ret.planesFound}");
+                if (ret.result == PlaneScanResult.Found)
+                {
+                    printLog($"Scan done: {ret.planesFound} planes found.");
+                } else if(ret.result==PlaneScanResult.Timeout)
+                {
+                    printLog($"Scan timeout: {ret.planesFound} planes found.");
+                } else if(ret.result==PlaneScanResult.Error) {
+                    printLog($"Scan error: {ret.message}");
+                } else if (ret.result == PlaneScanResult.Cancel) {
+                    printLog($"Scan cancel");
+                }
 
                 foreach(var plane in planeScanner.planeManager.planes) {
                     plane.SetDebug(ARPlaneDebugFlag.ShowInfo);
                 }
-
                 buttonStartScan.interactable = true;
             }).AddTo(this);
 
