@@ -72,6 +72,14 @@ namespace Arex.ARFoundation
             });
         }
 
+        void setOutlineOnly(bool v)
+        {
+            // var mr = GetComponent<ARPlaneMeshVisualizer>();
+            // mr.enabled = !v;
+            var mr = GetComponent<MeshRenderer>();
+            mr.material.color = new Color(0, 0, 0, 0);
+        }
+
         public void SetDebug(ARPlaneDebugFlag flag)
         {
             if(id <0) {
@@ -81,6 +89,7 @@ namespace Arex.ARFoundation
             if((flag & ARPlaneDebugFlag.ShowInfo) != 0) {
                 setShowInfoFlag();
             }
+            setOutlineOnly((flag & ARPlaneDebugFlag.OutlineOnly) != 0);
             this.flag = flag;
         }
 
@@ -102,6 +111,10 @@ namespace Arex.ARFoundation
         void Awake()
         {
             this.nativePlane = GetComponent<ARPlane>();
+            Observable.FromEvent<ARPlaneBoundaryChangedEventArgs>(h => this.nativePlane.boundaryChanged += h, h => this.nativePlane.boundaryChanged -= h)
+                .Subscribe(arg => {
+                    Debug.Log($"Updated: #{_id}");
+                }).AddTo(this);
         }
     }
 }

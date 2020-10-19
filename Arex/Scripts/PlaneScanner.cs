@@ -61,7 +61,7 @@ namespace Arex
 
             planeManager_.Added.Subscribe(plane =>
             {
-                Debug.Log($"<color=blue>new plane: {plane.ToString()}, {plane.subsumed()}</color>");
+                Debug.Log($"<color=blue>new plane: {plane.ToShortStrig()}, {plane.subsumed()}</color>");
                 var totalPlanes = planeManager_.planes.Where(p => condition(p)).Count();
                 if (totalPlanes >= currentPlanes + newPlanes)
                 {
@@ -98,12 +98,14 @@ namespace Arex
                 newPlanes--;
                 try
                 {
-                    await scanPlanes(disposable, currentPlanes, 1, condition, token).Timeout(TimeSpan.FromSeconds(firstTimeout));
+                    await scanPlanes(disposable, currentPlanes, 1, condition, token)
+                        .Timeout(TimeSpan.FromSeconds(firstTimeout));
                 }catch(TimeoutException)
                 {
                     return new PlaneScanResultArg
                     {
                         result = PlaneScanResult.Timeout,
+                        message = "No planes found"
                     };
                 }
             }
@@ -117,7 +119,7 @@ namespace Arex
             }).AddTo(disposable);
 
             // scan planes
-            var scanTask = scanPlanes(disposable, currentPlanes, newPlanes, condition, token); // index: 0
+            var scanTask = scanPlanes(disposable, currentPlanes, newPlanes, condition, token);
 
             bool did_timeout = false;
             Exception error = null;
@@ -170,6 +172,7 @@ namespace Arex
                     else
                     {
                         ret.result = PlaneScanResult.Timeout;
+                        ret.message = $"{planesFound}/{newPlanes} planes found.";
                     }
                 }
             }

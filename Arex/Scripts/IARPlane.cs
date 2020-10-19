@@ -14,7 +14,8 @@ namespace Arex
 {
     [Flags]
     public enum ARPlaneDebugFlag {
-        ShowInfo = 1
+        ShowInfo = 1,
+        OutlineOnly = 1 << 1,
     }
 
     public interface IARPlane
