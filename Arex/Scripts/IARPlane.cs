@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.XR.ARFoundation;
 using Unity.Collections;
 using UniRx;
 using UniRx.Triggers;
@@ -14,6 +13,7 @@ namespace Arex
 {
     [Flags]
     public enum ARPlaneDebugFlag {
+        None = 0,
         ShowInfo = 1,
         OutlineOnly = 1 << 1,
     }
@@ -34,7 +34,9 @@ namespace Arex
 
         string ToShortStrig();
 
-        void SetDebug(ARPlaneDebugFlag flag);
+        void SetFlag(ARPlaneDebugFlag flag);
+        void ClearFlag(ARPlaneDebugFlag flag);
+        ARPlaneDebugFlag Flag { get; }
     }
 
     public static class IARPlaneExtensions

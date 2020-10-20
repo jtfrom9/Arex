@@ -49,7 +49,7 @@ namespace Arex.Examples
                 {
                     if (plane != lowestPlane)
                     {
-                        plane.SetDebug(ARPlaneDebugFlag.OutlineOnly);
+                        plane.SetFlag(ARPlaneDebugFlag.OutlineOnly);
                     }
                 }
                 Debug.Log($"<color=red>max lowest is #{maxPlane.id}</color>");

@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.XR.ARFoundation;
 using Unity.Collections;
 using UniRx;
 using UniRx.Triggers;

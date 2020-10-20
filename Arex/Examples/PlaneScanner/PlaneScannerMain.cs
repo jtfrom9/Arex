@@ -61,7 +61,7 @@ namespace Arex.Examples
 
             foreach (var plane in planeScanner.planeManager.planes)
             {
-                plane.SetDebug(ARPlaneDebugFlag.ShowInfo);
+                plane.SetFlag(ARPlaneDebugFlag.ShowInfo);
             }
         }
 

@@ -17,7 +17,8 @@ namespace Arex.ARFoundation
         IDisposable debugTextDisposable;
 
         object IARPlane.internalObject { get => nativePlane; }
-        public int id {
+        public int id
+        {
             get => this._id;
             set => this._id = value;
         }
@@ -28,7 +29,8 @@ namespace Arex.ARFoundation
         Vector2 IARPlane.size { get => nativePlane.size; }
         NativeArray<Vector2> IARPlane.boundary { get => nativePlane.boundary; }
 
-        public IARPlane subsumedBy {
+        public IARPlane subsumedBy
+        {
             get
             {
                 if (nativePlane.subsumedBy == null)
@@ -49,8 +51,11 @@ namespace Arex.ARFoundation
             set => gameObject.SetActive(value);
         }
 
-        void setShowInfoFlag()
+        void setShowInfoFlag(bool enable)
         {
+            if(nativePlane==null) {
+                return;
+            }
             if (debugTextDisposable != null)
             {
                 return;
@@ -72,29 +77,56 @@ namespace Arex.ARFoundation
             });
         }
 
-        void setOutlineOnly(bool v)
+        void setOutlineOnly(bool enable)
         {
+            if (nativePlane == null)
+            {
+                return;
+            }
             // var mr = GetComponent<ARPlaneMeshVisualizer>();
             // mr.enabled = !v;
             var mr = GetComponent<MeshRenderer>();
             mr.material.color = new Color(0, 0, 0, 0);
         }
 
-        public void SetDebug(ARPlaneDebugFlag flag)
+        bool selectedFlag(ARPlaneDebugFlag flag, bool enable)
         {
-            if(id <0) {
-                Debug.LogError("failed SetDebug.");
-                return;
-            }
-            if((flag & ARPlaneDebugFlag.ShowInfo) != 0) {
-                setShowInfoFlag();
-            }
-            setOutlineOnly((flag & ARPlaneDebugFlag.OutlineOnly) != 0);
-            this.flag = flag;
+            if (enable)
+                return (~this.flag & flag) != 0;
+            else
+                return (this.flag & flag) != 0;
         }
+
+        void setFlag(ARPlaneDebugFlag flag, bool enable)
+        {
+            if (selectedFlag(flag & ARPlaneDebugFlag.ShowInfo, enable))
+            {
+                setShowInfoFlag(enable);
+            }
+            if (selectedFlag(flag & ARPlaneDebugFlag.OutlineOnly, enable))
+            {
+                setOutlineOnly(enable);
+            }
+        }
+
+        public void SetFlag(ARPlaneDebugFlag flag)
+        {
+            setFlag(flag, true);
+            this.flag |= flag;
+        }
+
+        public void ClearFlag(ARPlaneDebugFlag flag)
+        {
+            setFlag(flag, false);
+            this.flag &= ~flag;
+        }
+
+        public ARPlaneDebugFlag Flag { get => this.flag; }
 
         string vString()
         {
+            if(nativePlane==null)
+                return "";
             return (subsumedBy!=null) ? $"(Invalid:#{subsumedBy.id}) " : "";
         }
 
