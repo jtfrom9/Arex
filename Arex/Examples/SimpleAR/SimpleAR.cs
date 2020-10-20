@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Assertions;
 using UniRx;
 
-namespace Arex.ARFoundation
+namespace Arex.Examples
 {
     public class SimpleAR : MonoBehaviour
     {
@@ -13,15 +13,12 @@ namespace Arex.ARFoundation
         public Toggle togglePlaneManager;
         public Toggle toggleVisualPlane;
         public Toggle toggleOcculusion;
-        public Text textDebug;
+        public DebugPanel debugPanel;
 
         [SerializeField] bool initSession = true;
         [SerializeField] bool initPlaneSearch = false;
         [SerializeField] bool initVisiblePlane = true;
         [SerializeField] bool initOcclusion = false;
-
-        List<string> logLines = new List<string>();
-        [SerializeField] int lineOfLog = 5;
 
         // public void Init(IARSession session, IARPlaneManager planeManager)
         // {
@@ -34,16 +31,12 @@ namespace Arex.ARFoundation
             Assert.IsNotNull(toggleSession);
             Assert.IsNotNull(togglePlaneManager);
             Assert.IsNotNull(toggleVisualPlane);
-            Assert.IsNotNull(textDebug);
+            Assert.IsNotNull(debugPanel);
         }
-
 
         void printLog(string msg)
         {
-            logLines.Add($"{System.DateTime.Now.ToString("HH:mm:ss")} | {msg}");
-            if(logLines.Count > 5)
-                logLines.RemoveAt(0);
-            textDebug.text = string.Join("\n", logLines);
+            debugPanel.PrintLog(msg);
         }
 
         void Start()

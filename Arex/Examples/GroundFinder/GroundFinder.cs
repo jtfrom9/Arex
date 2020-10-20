@@ -15,6 +15,7 @@ namespace Arex.Examples
     public class GroundFinder : MonoBehaviour
     {
         public Button button;
+        public DebugPanel debugPanel;
 
         PlaneScanner planeScanner;
         float maxSquare = 0;
@@ -52,11 +53,11 @@ namespace Arex.Examples
                         plane.SetFlag(ARPlaneDebugFlag.OutlineOnly);
                     }
                 }
-                Debug.Log($"<color=red>max lowest is #{maxPlane.id}</color>");
+                debugPanel.PrintLog($"<color=red>max lowest is #{maxPlane.id}</color>");
             }
             else
             {
-                Debug.LogWarning($"{ret.result.ToString()} ({ret.message})");
+                debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message})");
             }
         }
 
@@ -68,12 +69,12 @@ namespace Arex.Examples
                 var distance = (currentPosition - Camera.main.transform.position).magnitude;
                 if (distance > 3.0f)
                 {
-                    Debug.LogError("Moved too far. cancel plane scan");
+                    debugPanel.PrintLog("Moved too far. cancel plane scan");
                     cts.Cancel();
                     cts.Dispose();
                 } else if (distance > 1.0f)
                 {
-                    Debug.Log($"Please stay in the same place and scan your surroundings. you already moved {distance} meters");
+                    debugPanel.PrintLog($"Please stay in the same place and scan your surroundings. you already moved {distance} meters");
                 }
             }).AddTo(disposable);
             return cts.Token;

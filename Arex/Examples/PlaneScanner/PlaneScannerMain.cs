@@ -13,21 +13,13 @@ namespace Arex.Examples
         public PlaneScanner planeScanner;
 
         public Button button;
-        public Text textDebug;
+        public DebugPanel debugPanel;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-        List<string> logLines = new List<string>();
-        [SerializeField] int lineOfLog = 5;
-
         void printLog(string msg)
         {
-            Debug.Log(msg);
-
-            logLines.Add($"{System.DateTime.Now.ToString("HH:mm:ss")} | {msg}");
-            if (logLines.Count > 5)
-                logLines.RemoveAt(0);
-            textDebug.text = string.Join("\n", logLines);
+            debugPanel.PrintLog(msg);
         }
 
         async UniTask scan()
