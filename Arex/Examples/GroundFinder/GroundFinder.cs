@@ -51,7 +51,8 @@ namespace Arex.Examples
                 {
                     if (plane != lowestPlane)
                     {
-                        plane.SetFlag(ARPlaneDebugFlag.OutlineOnly);
+                        // plane.SetFlag(ARPlaneDebugFlag.OutlineOnly);
+                        plane.visible = false;
                     }
                 }
                 debugPanel.PrintLog($"<color=red>max lowest is #{maxPlane.id}</color>");
