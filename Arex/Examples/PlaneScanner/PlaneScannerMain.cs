@@ -28,11 +28,10 @@ namespace Arex.Examples
             int timeout = 10;
             printLog($"Start Scan Plane (planes: {planes}, timeout: {timeout})");
 
-            var ret = await planeScanner.StartScan(
+            var ret = await planeScanner.Scan(
                 planes,
                 timeout,
-                condition: PlaneConditionMatcher.IsValidPlane,
-                token: this.tokenSource.Token);
+                this.tokenSource.Token);
 
             if (ret.result == PlaneScanResult.Found)
             {

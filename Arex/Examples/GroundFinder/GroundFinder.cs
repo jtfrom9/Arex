@@ -23,14 +23,12 @@ namespace Arex.Examples
 
         async UniTask scanPlane(CancellationToken token)
         {
-            var condition = PlaneConditionMatcher.IsValidPlane;
-            var ret = await planeScanner.StartScan(newPlanes: 30, timeout: 10, token: token,
-                condition: condition,
-                waitFirstPlane: true);
+            var ret = await planeScanner.Scan(
+                numPlanes: 30,
+                timeout: 10, token: token, waitFirstPlane: true);
             if ((ret.result == PlaneScanResult.Found || ret.result == PlaneScanResult.Timeout) && ret.planesFound > 0)
             {
-                var planes = planeScanner.planeManager.planes.Where(p => condition(p));
-                var orderedPlanes = planes.OrderByDescending(p => p.size.x * p.size.y);
+                var orderedPlanes = planeScanner.planeManager.ActivePlanes().OrderByDescending(p => p.size.x * p.size.y);
                 var maxPlane = orderedPlanes.FirstOrDefault();
                 var maxSquare = maxPlane.size.x * maxPlane.size.y;
                 var lowestPlane = maxPlane;

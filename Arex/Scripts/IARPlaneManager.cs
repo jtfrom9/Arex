@@ -23,4 +23,12 @@ namespace Arex
 
         IEnumerable<IARPlane> planes { get; }
     }
+
+    public static class ARPlaneManagerExtensions
+    {
+        public static IEnumerable<IARPlane> ActivePlanes(this IARPlaneManager pm)
+        {
+            return pm.planes.Where(plane => !plane.subsumed());
+        }
+    }
 }
