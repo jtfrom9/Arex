@@ -15,6 +15,8 @@ namespace Arex.ARFoundation
     [RequireComponent(typeof(ARRaycastManager))]
     public class ARFoundationPlaneManager : MonoBehaviour, IARPlaneManager
     {
+        [SerializeField] bool inspectorDebug = false;
+
         ARPlaneManager planeManager;
         ARRaycastManager raycastManager;
         AROcclusionManager occlusionManager;
@@ -54,7 +56,17 @@ namespace Arex.ARFoundation
             if (!planeDicts.ContainsKey(nativePlane))
             {
                 var plane = nativePlane.gameObject.GetComponent<ARFoundationPlane>();
-                Assert.IsNotNull(plane, "No ARFoundationPlane");
+                // Assert.IsNotNull(plane, "No ARFoundationPlane");
+                if(plane==null) {
+                    plane = nativePlane.gameObject.AddComponent<ARFoundationPlane>();
+                }
+                if(inspectorDebug) {
+                    // add debug component
+                    if (nativePlane.gameObject.GetComponent<ARPlaneDebug>() == null)
+                    {
+                        nativePlane.gameObject.AddComponent<ARPlaneDebug>();
+                    }
+                }
                 plane.id = idCount;
                 idCount++;
 

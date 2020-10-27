@@ -437,6 +437,7 @@ GameObject:
   - component: {fileID: 161583291}
   - component: {fileID: 161583290}
   - component: {fileID: 161583289}
+  - component: {fileID: 161583292}
   m_Layer: 0
   m_Name: AR Session Origin
   m_TagString: Untagged
@@ -484,6 +485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb5568a3d2e214b75ae92179fe5290df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inspectorDebug: 1
 --- !u!114 &161583290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -509,9 +511,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1760703bbd54c04488a8d10600262ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PlanePrefab: {fileID: 1232956857025499564, guid: 40d95b08c2f354ecd9c8f88722d1a624,
+  m_PlanePrefab: {fileID: 1585201990951412, guid: b9e39a1956ec142f8981354376fe1970,
     type: 3}
   m_DetectionMode: -1
+--- !u!114 &161583292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 161583286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b15f82cc229284894964d2d30806969d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HumanSegmentationStencilMode: 0
+  m_HumanSegmentationDepthMode: 0
+  m_EnvironmentDepthMode: 2
+  m_OcclusionPreferenceMode: 0
 --- !u!1 &449601798
 GameObject:
   m_ObjectHideFlags: 0

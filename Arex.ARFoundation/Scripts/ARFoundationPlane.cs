@@ -10,10 +10,11 @@ namespace Arex.ARFoundation
     [RequireComponent(typeof(ARPlane))]
     public class ARFoundationPlane : MonoBehaviour, IARPlane
     {
+        [SerializeField] bool debugOn = false;
         ARPlane nativePlane;
         int _id = -1;
         ARFoundationPlane subsumePlane;
-        [SerializeField] ARPlaneDebugFlag flag;
+        ARPlaneDebugFlag flag;
         IDisposable debugTextDisposable;
 
         object IARPlane.internalObject { get => nativePlane; }
