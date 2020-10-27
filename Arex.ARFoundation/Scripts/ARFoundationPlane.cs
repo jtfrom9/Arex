@@ -13,7 +13,7 @@ namespace Arex.ARFoundation
         ARPlane nativePlane;
         int _id = -1;
         ARFoundationPlane subsumePlane;
-        ARPlaneDebugFlag flag;
+        [SerializeField] ARPlaneDebugFlag flag;
         IDisposable debugTextDisposable;
 
         object IARPlane.internalObject { get => nativePlane; }

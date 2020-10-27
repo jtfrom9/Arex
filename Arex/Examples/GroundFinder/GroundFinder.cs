@@ -14,6 +14,7 @@ namespace Arex.Examples
     [RequireComponent(typeof(PlaneScanner))]
     public class GroundFinder : MonoBehaviour
     {
+        public Transform cameraTransform;
         public Button button;
         public DebugPanel debugPanel;
 
@@ -63,18 +64,21 @@ namespace Arex.Examples
 
         CancellationToken watchCameraMove(CompositeDisposable disposable)
         {
-            var currentPosition = Camera.main.transform.position;
+            var currentPosition = cameraTransform.position;
             var cts = new CancellationTokenSource();
-            this.UpdateAsObservable().Subscribe(_ => {
-                var distance = (currentPosition - Camera.main.transform.position).magnitude;
+            this.UpdateAsObservable().Subscribe(_ =>
+            {
+                var distance = (currentPosition - cameraTransform.position).magnitude;
                 if (distance > 3.0f)
                 {
                     debugPanel.PrintLog("Moved too far. cancel plane scan");
                     cts.Cancel();
                     cts.Dispose();
-                } else if (distance > 1.0f)
+                    cts = null;
+                }
+                else if (distance > 1.2f)
                 {
-                    debugPanel.PrintLog($"Please stay in the same place and scan your surroundings. you already moved {distance} meters");
+                    debugPanel.PrintLog($"Stay and scan your surroundings. moved {distance} meters");
                 }
             }).AddTo(disposable);
             return cts.Token;
@@ -83,21 +87,17 @@ namespace Arex.Examples
         void Start()
         {
             planeScanner = GetComponent<PlaneScanner>();
-            // token = this.GetCancellationTokenOnDestroy();
-
             button.OnClickAsObservable().Subscribe(async _ => {
+                debugPanel.PrintLog($"StartScan");
+
                 button.interactable = false;
                 var disposable = new CompositeDisposable();
                 await scanPlane(watchCameraMove(disposable));
                 disposable.Dispose();
                 button.interactable = true;
+
+                debugPanel.PrintLog($"Scan Ended");
             }).AddTo(this);
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
     }
 }

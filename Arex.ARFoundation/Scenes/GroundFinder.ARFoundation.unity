@@ -673,6 +673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaaf5e9a2b4ae48909d16b4c7afa0917, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraTransform: {fileID: 1782712242}
   button: {fileID: 449601800}
   debugPanel: {fileID: 498830147}
 --- !u!114 &766990575

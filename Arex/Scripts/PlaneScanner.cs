@@ -107,6 +107,12 @@ namespace Arex
                         result = PlaneScanResult.Timeout,
                         message = "No planes found"
                     };
+                }catch(OperationCanceledException)
+                {
+                    return new PlaneScanResultArg
+                    {
+                        result = PlaneScanResult.Cancel,
+                    };
                 }
             }
 
