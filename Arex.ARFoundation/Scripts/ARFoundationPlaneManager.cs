@@ -25,6 +25,7 @@ namespace Arex.ARFoundation
         ReactiveProperty<string> debugStatusProp = new ReactiveProperty<string>();
         int lastNumPlanes = 0;
         Subject<IARPlane> addedSubject = new Subject<IARPlane>();
+        Subject<IARPlane> updatedSubject = new Subject<IARPlane>();
         Subject<IARPlane> removedSubject = new Subject<IARPlane>();
 
         Dictionary<ARPlane, IARPlane> planeDicts = new Dictionary<ARPlane, IARPlane>();
@@ -75,6 +76,15 @@ namespace Arex.ARFoundation
             }
         }
 
+        void onUpdatedPlane(ARPlane nativePlane)
+        {
+            if (!planeDicts.ContainsKey(nativePlane))
+            {
+                return;
+            }
+            updatedSubject.OnNext(planeDicts[nativePlane]);
+        }
+
         void onRemovedPlane(ARPlane nativePlane)
         {
             var plane = planeDicts[nativePlane];
@@ -108,6 +118,7 @@ namespace Arex.ARFoundation
                         foreach (var nativePlane in e.updated)
                         {
                             updated = true;
+                            onUpdatedPlane(nativePlane);
                         }
                         foreach (var nativePlane in e.removed)
                         {
@@ -160,6 +171,7 @@ namespace Arex.ARFoundation
         }
 
         IObservable<IARPlane> IARPlaneManager.Added { get => addedSubject; }
+        IObservable<IARPlane> IARPlaneManager.Updated { get => updatedSubject; }
         IObservable<IARPlane> IARPlaneManager.Removed { get => removedSubject; }
 
         async Task<IARPlane> IARPlaneManager.SearchAnchoredPlane()

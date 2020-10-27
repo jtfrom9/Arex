@@ -59,24 +59,19 @@ namespace Arex
         {
             var utc = new UniTaskCompletionSource();
 
-            planeManager_.Added.Subscribe(plane =>
+            Action<IARPlane> handler = (plane) =>
             {
-                Debug.Log($"<color=blue>new plane: {plane.ToShortStrig()}, {plane.subsumed()}</color>");
+                if (token.IsCancellationRequested) {
+                    utc.TrySetCanceled();
+                }
                 var totalPlanes = planeManager_.planes.Where(p => condition(p)).Count();
                 if (totalPlanes >= currentPlanes + newPlanes)
                 {
-                    Debug.Log($"found {newPlanes}");
                     utc.TrySetResult();
                 }
-            }).AddTo(dispoable);
-
-            this.UpdateAsObservable().Subscribe(_ => {
-                if (token.IsCancellationRequested)
-                {
-                    var totalPlanes = planeManager_.planes.Where(p => condition(p)).Count();
-                    utc.TrySetCanceled();
-                }
-            }).AddTo(dispoable);
+            };
+            planeManager_.Added.Subscribe(handler).AddTo(dispoable);
+            planeManager_.Updated.Subscribe(handler).AddTo(dispoable);
 
             return utc.Task;
         }

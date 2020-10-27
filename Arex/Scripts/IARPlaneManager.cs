@@ -17,6 +17,7 @@ namespace Arex
 
         bool EnableSearchPlanes { get; set; }
         IObservable<IARPlane> Added { get; }
+        IObservable<IARPlane> Updated { get; }
         IObservable<IARPlane> Removed { get; }
         Task<IARPlane> SearchAnchoredPlane();
 
