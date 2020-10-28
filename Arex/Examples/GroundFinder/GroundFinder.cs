@@ -24,7 +24,25 @@ namespace Arex.Examples
         async UniTask scanPlane(CancellationToken token)
         {
             var ret = await planeScanner.Scan(
-                numPlanes: 30,
+                //numPlanes: 30,
+                (pm) => {
+                    int count = 0;
+                    var planes = new List<IARPlane>();
+                    foreach(var plane in pm.ActivePlanes()) {
+                        var area = plane.CalcArea();
+                        if(area > 3.0f) {
+                            return (true, $"Found a large plane ({plane.ToShortStrig()}, area={area})");
+                        }
+                        else if(area > 1.0f) {
+                            count++;
+                            planes.Add(plane);
+                        }
+                    }
+                    if (count >= 3)
+                        return (true, $"Found more thant 3 planes ({string.Join(",", planes.Select(p => p.ToShortStrig()))})");
+                    else
+                        return (false, "");
+                },
                 timeout: 10, token: token, waitFirstPlane: true);
             if ((ret.result == PlaneScanResult.Found || ret.result == PlaneScanResult.Timeout) && ret.planesFound > 0)
             {
@@ -53,7 +71,7 @@ namespace Arex.Examples
                         plane.visible = false;
                     }
                 }
-                debugPanel.PrintLog($"<color=red>max lowest is #{maxPlane.id}</color>");
+                debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message}) <color=red>max lowest is #{maxPlane.id}</color>");
             }
             else
             {
