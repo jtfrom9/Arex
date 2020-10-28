@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UniRx;
 using Arex;
 
 namespace Arex.ARFoundation
@@ -14,6 +16,9 @@ namespace Arex.ARFoundation
         public string trackableId;
         public string subsumedBy;
 
+        public float area;
+        public Vector2[] boundary;
+
         ARPlane nativePlane;
         IARPlane plane;
 
@@ -21,6 +26,12 @@ namespace Arex.ARFoundation
         {
             nativePlane = GetComponent<ARPlane>();
             plane = GetComponent<ARFoundationPlane>() as IARPlane;
+
+            Observable.FromEvent<ARPlaneBoundaryChangedEventArgs>(h => nativePlane.boundaryChanged += h, h => nativePlane.boundaryChanged -= h)
+                .Subscribe(e => {
+                    area = plane.CalcArea();
+                    boundary = plane.boundary.ToArray();
+                }).AddTo(this);
 
             Assert.IsNotNull(nativePlane);
             Assert.IsNotNull(plane);

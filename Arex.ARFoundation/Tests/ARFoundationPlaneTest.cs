@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Unity.Collections;
 
 namespace Arex.ARFoundation.Tests
 {
@@ -80,6 +81,69 @@ namespace Arex.ARFoundation.Tests
                 plane.SetFlag(ARPlaneDebugFlag.ShowInfo);
                 plane.ClearFlag(ARPlaneDebugFlag.OutlineOnly);
                 plane.Flag.ShouldOn(ARPlaneDebugFlag.ShowInfo);
+            }
+        }
+
+        class MockPlane : IARPlane
+        {
+            public object internalObject { get; }
+            public int id { get; }
+
+            public Vector3 normal { get; }
+            public Vector3 center { get; }
+            public Vector2 extents { get; }
+            public Vector2 size { get; }
+            public NativeArray<Vector2> boundary { get; set; }
+            public IARPlane subsumedBy { get; }
+            public bool visible { get; set; }
+            public string ToShortStrig() { return ""; }
+            public void SetFlag(ARPlaneDebugFlag flag) { }
+            public void ClearFlag(ARPlaneDebugFlag flag) { }
+            public ARPlaneDebugFlag Flag { get; }
+
+            public MockPlane(Vector2[] vs)
+            {
+                this.boundary = new NativeArray<Vector2>(vs, Allocator.Temp);
+            }
+        }
+
+        [Test]
+        public void AreaTest()
+        {
+            {
+                var plane = new MockPlane(new[] {
+                    Vector2.zero,
+                    new Vector2{x=1,y=0},
+                    new Vector2{x=0,y=1},
+                });
+                Assert.That(plane.CalcArea(), Is.EqualTo(0.5f));
+            }
+            {
+                var plane = new MockPlane(new[] {
+                    Vector2.zero,
+                    new Vector2{x=1,y=0},
+                    new Vector2{x=0,y=1},
+                    new Vector2{x=1,y=1}
+                });
+                Assert.That(plane.CalcArea(), Is.EqualTo(1f));
+            }
+            {
+                var plane = new MockPlane(new[] {
+                    Vector2.zero,
+                    new Vector2{x=2,y=0},
+                    new Vector2{x=1,y=1},
+                    new Vector2{x=3,y=1}
+                });
+                Assert.That(plane.CalcArea(), Is.EqualTo(2f));
+            }
+            {
+                var plane = new MockPlane(new[] {
+                    new Vector2{x=2,y=0},
+                    Vector2.zero,
+                    new Vector2{x=3,y=1},
+                    new Vector2{x=1,y=1},
+                });
+                Assert.That(plane.CalcArea(), Is.EqualTo(2f));
             }
         }
     }
