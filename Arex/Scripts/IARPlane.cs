@@ -29,8 +29,10 @@ namespace Arex
         Vector2 size { get; }
         NativeArray<Vector2> boundary { get; }
 
+        Transform transform { get; }
         IARPlane subsumedBy { get; }
         bool visible { get; set; }
+        Material material { get; set; }
 
         string ToShortStrig();
 
@@ -58,6 +60,7 @@ namespace Arex
                     var v1 = prev - origin;
                     var v2 = p - origin;
                     ret += Mathf.Abs(v1.x * v2.y - v1.y * v2.x) / 2.0f;
+                    prev = p;
                 }
             }
             return ret;

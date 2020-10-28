@@ -15,6 +15,8 @@ namespace Arex.ARFoundation
         public TrackingState trackingState;
         public string trackableId;
         public string subsumedBy;
+        public Vector3 center;
+
 
         public float area;
         public Vector2[] boundary;
@@ -42,7 +44,7 @@ namespace Arex.ARFoundation
             trackingState = nativePlane.trackingState;
             trackableId = nativePlane.trackableId.ToString();
             subsumedBy = (nativePlane.subsumedBy != null) ? nativePlane.subsumedBy.trackableId.ToString() : "";
-
+            center = nativePlane.center;
             gameObject.name = plane.ToShortStrig();
         }
     }

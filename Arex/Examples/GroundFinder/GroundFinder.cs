@@ -11,71 +11,151 @@ using Cysharp.Threading.Tasks;
 
 namespace Arex.Examples
 {
+    [Serializable]
+    class GroudFindCondition
+    {
+        public float largeArea = 5.0f;
+        public float midArea = 3.0f;
+        public int numMidPlane = 3;
+    }
+
     [RequireComponent(typeof(PlaneScanner))]
     public class GroundFinder : MonoBehaviour
     {
         public Transform cameraTransform;
-        public Button button;
+        public Button scanButton;
+        // public Button clearButton;
         public DebugPanel debugPanel;
 
+        [SerializeField] GroudFindCondition condition;
+        [SerializeField] Material groundMaterial;
+
         PlaneScanner planeScanner;
-        float maxSquare = 0;
+        IARPlane groundPlane = null;
+        Material matBackup;
+        GameObject offset;
+        Transform trackablesTransform;
+
+        void setGroundVisible(bool v)
+        {
+            if (groundPlane != null)
+            {
+                groundPlane.visible = v;
+            }
+        }
+
+        void setGroundMaterial(Material material)
+        {
+            if (groundPlane != null)
+            {
+                if (material == null)
+                {
+                    groundPlane.material = matBackup;
+                }
+                else
+                {
+                    matBackup = groundPlane.material;
+                    groundPlane.material = material;
+                }
+            }
+        }
+
+        void setGroundPlane(IARPlane plane)
+        {
+            if (this.groundPlane != plane)
+            {
+                if(this.groundPlane!=null) {
+                    this.groundPlane.transform.SetParent(this.trackablesTransform);
+                }
+                this.groundPlane = plane;
+                if (this.groundPlane != null)
+                {
+                    this.trackablesTransform = this.groundPlane.transform.parent;
+                    this.offset.transform.position = Vector3.zero + new Vector3(0, 0.1f, 0);
+                    this.offset.transform.SetParent(this.trackablesTransform);
+                    this.groundPlane.transform.SetParent(this.offset.transform);
+                }
+            }
+        }
+
+        void setAllPlaneVisible(bool v)
+        {
+            foreach (var plane in planeScanner.planeManager.planes)
+            {
+                plane.visible = v;
+            }
+        }
 
         async UniTask scanPlane(CancellationToken token)
         {
+            setAllPlaneVisible(true);
+            setGroundMaterial(null);
+            setGroundPlane(null);
+
             var ret = await planeScanner.Scan(
-                //numPlanes: 30,
-                (pm) => {
-                    int count = 0;
+                (planeManager) => {
                     var planes = new List<IARPlane>();
-                    foreach(var plane in pm.ActivePlanes()) {
+                    foreach(var plane in planeManager.ActivePlanes()) {
                         var area = plane.CalcArea();
-                        if(area > 3.0f) {
+                        Debug.Log($"scanning. #{plane.id} {area}");
+                        if (area >= condition.largeArea)
+                        {
+                            planes.Add(plane);
                             return (true, $"Found a large plane ({plane.ToShortStrig()}, area={area})");
                         }
-                        else if(area > 1.0f) {
-                            count++;
+                        else if (area >= condition.midArea)
+                        {
                             planes.Add(plane);
                         }
                     }
-                    if (count >= 3)
-                        return (true, $"Found more thant 3 planes ({string.Join(",", planes.Select(p => p.ToShortStrig()))})");
+                    if (planes.Count >= condition.numMidPlane)
+                        return (true, $"Found more {condition.numMidPlane} planes ({string.Join(",", planes.Select(p => p.ToShortStrig()))})");
                     else
                         return (false, "");
                 },
-                timeout: 10, token: token, waitFirstPlane: true);
-            if ((ret.result == PlaneScanResult.Found || ret.result == PlaneScanResult.Timeout) && ret.planesFound > 0)
+                timeout: 10, token: token,
+                waitFirstPlane: true, firstTimeout: 5);
+
+            // if (ret.result == PlaneScanResult.Found) // || ret.result == PlaneScanResult.Timeout) && ret.planesFound > 0)
+            if (ret.result == PlaneScanResult.Found || ret.result == PlaneScanResult.Timeout)
             {
-                var orderedPlanes = planeScanner.planeManager.ActivePlanes().OrderByDescending(p => p.size.x * p.size.y);
+                debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message})");
+                var orderedPlanes = planeScanner.planeManager.ActivePlanes().OrderByDescending(p => p.CalcArea()); // fixme
                 var maxPlane = orderedPlanes.FirstOrDefault();
-                var maxSquare = maxPlane.size.x * maxPlane.size.y;
+                var maxArea = maxPlane.CalcArea();
                 var lowestPlane = maxPlane;
 
                 foreach (var plane in orderedPlanes)
                 {
-                    var square = plane.size.x * plane.size.y;
-                    if (square < maxSquare * 0.75f)
+                    var square = plane.CalcArea();
+                    if (square < maxArea * 0.75f)
                     {
                         break;
                     }
-                    if (plane.center.y < lowestPlane.center.y)
+                    if (plane.center.y < maxPlane.center.y)
                     {
                         lowestPlane = plane;
                     }
                 }
-                foreach (var plane in planeScanner.planeManager.planes)
-                {
-                    if (plane != lowestPlane)
-                    {
-                        // plane.SetFlag(ARPlaneDebugFlag.OutlineOnly);
-                        plane.visible = false;
-                    }
-                }
-                debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message}) <color=red>max lowest is #{maxPlane.id}</color>");
+                // select ground plane
+                setGroundPlane(lowestPlane);
+
+                // make rest of all invisible
+                setAllPlaneVisible(false);
+                setGroundVisible(true);
+                setGroundMaterial(groundMaterial);
+                debugPanel.PrintLog($"<color=red>max lowest is #{maxPlane.id} area={maxPlane.CalcArea()}</color>");
             }
             else
             {
                 debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message})");
+                var actives = planeScanner.planeManager.ActivePlanes();
+                var msg = string.Join(",", actives.Select(p => $"#{p.id}({p.CalcArea()})"));
+                debugPanel.PrintLog($"planes are {msg}");
+                foreach(var plane in actives) {
+                    // plane.SetFlag(ARPlaneDebugFlag.OutlineOnly);
+                    plane.visible = false;
+                }
             }
         }
 
@@ -103,18 +183,33 @@ namespace Arex.Examples
 
         void Start()
         {
-            planeScanner = GetComponent<PlaneScanner>();
-            button.OnClickAsObservable().Subscribe(async _ => {
+            scanButton.OnClickAsObservable().Subscribe(async _ => {
                 debugPanel.PrintLog($"StartScan");
 
-                button.interactable = false;
+                scanButton.interactable = false;
                 var disposable = new CompositeDisposable();
                 await scanPlane(watchCameraMove(disposable));
                 disposable.Dispose();
-                button.interactable = true;
+                scanButton.interactable = true;
 
                 debugPanel.PrintLog($"Scan Ended");
             }).AddTo(this);
+
+            // clearButton.OnClickAsObservable().Subscribe(async _ =>
+            // {
+            //     planeScanner.planeManager.RemoveAll();
+            // }).AddTo(this);
+
+            // this.UpdateAsObservable().Subscribe(_ => {
+            //     clearButton.interactable = planeScanner.planeManager.planes.Count() > 0
+            //         && !planeScanner.planeManager.EnableSearchPlanes;
+            // }).AddTo(this);
+        }
+
+        void Awake()
+        {
+            this.planeScanner = GetComponent<PlaneScanner>();
+            this.offset = new GameObject("offset");
         }
     }
 }

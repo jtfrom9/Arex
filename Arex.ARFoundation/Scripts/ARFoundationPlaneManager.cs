@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.XR.ARFoundation;
 using UniRx;
-
+using Cysharp.Threading.Tasks;
 using Arex;
 
 namespace Arex.ARFoundation
@@ -140,11 +140,11 @@ namespace Arex.ARFoundation
         {
             if (planeManager != null)
             {
-                foreach (var trackable in planeManager.trackables)
-                {
-                    var nativePlane = trackable as ARPlane;
-                    onAddedPlane(nativePlane);
-                }
+                // foreach (var trackable in planeManager.trackables)
+                // {
+                //     var nativePlane = trackable as ARPlane;
+                //     onAddedPlane(nativePlane);
+                // }
                 planeManager.enabled = true;
             }
         }
@@ -180,5 +180,38 @@ namespace Arex.ARFoundation
         }
 
         public IEnumerable<IARPlane> planes { get => planeDicts.Values; }
+
+        // public void Remove(IARPlane plane) {
+        //     if (planeManager.enabled)
+        //     {
+        //         Debug.LogError("failed to Remove");
+        //         return;
+        //     }
+        //     if(planeDicts.ContainsValue(plane)) {
+        //         var nativePlane = planeDicts.First(e => e.Value == plane).Key;
+        //         planeDicts.Remove(nativePlane);
+        //         Destroy(nativePlane.gameObject);
+        //     }
+        // }
+
+        // public async UniTask RemoveAll()
+        // {
+        //     Debug.Log("RemoveAll");
+        //     if (planeManager.enabled)
+        //     {
+        //         Debug.LogError("failed to RemoveAll");
+        //         return;
+        //     }
+        //     // foreach(var nativePlane in planeDicts.Keys) {
+        //     //     Debug.Log($"removed #{planeDicts[nativePlane].id}");
+        //     //     Destroy(nativePlane.gameObject);
+        //     // }
+        //     var bakup = planeManager.currentDetectionMode;
+        //     planeManager.requestedDetectionMode = UnityEngine.XR.ARSubsystems.PlaneDetectionMode.None;
+        //     await UniTask.DelayFrame(10);
+        //     planeManager.requestedDetectionMode = bakup;
+        //     await UniTask.DelayFrame(10);
+        //     planeDicts.Clear();
+        // }
     }
 }

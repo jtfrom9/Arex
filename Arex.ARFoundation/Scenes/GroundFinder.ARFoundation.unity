@@ -290,7 +290,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Button
+  m_Text: Scan
 --- !u!222 &75277691
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -437,7 +437,6 @@ GameObject:
   - component: {fileID: 161583291}
   - component: {fileID: 161583290}
   - component: {fileID: 161583289}
-  - component: {fileID: 161583292}
   m_Layer: 0
   m_Name: AR Session Origin
   m_TagString: Untagged
@@ -513,23 +512,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PlanePrefab: {fileID: 1585201990951412, guid: b9e39a1956ec142f8981354376fe1970,
     type: 3}
-  m_DetectionMode: -1
---- !u!114 &161583292
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 161583286}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b15f82cc229284894964d2d30806969d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HumanSegmentationStencilMode: 0
-  m_HumanSegmentationDepthMode: 0
-  m_EnvironmentDepthMode: 2
-  m_OcclusionPreferenceMode: 0
+  m_DetectionMode: 1
 --- !u!1 &449601798
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,7 +526,7 @@ GameObject:
   - component: {fileID: 449601801}
   - component: {fileID: 449601800}
   m_Layer: 5
-  m_Name: Button
+  m_Name: ScanButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -692,8 +675,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 1782712242}
-  button: {fileID: 449601800}
+  scanButton: {fileID: 449601800}
   debugPanel: {fileID: 498830147}
+  condition:
+    largeArea: 3
+    midArea: 1
+    numMidPlane: 3
+  groundMaterial: {fileID: 2100000, guid: 87294f02d9437b8479f6d772f8b00a8d, type: 2}
 --- !u!114 &766990575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -963,6 +951,7 @@ GameObject:
   - component: {fileID: 1782712241}
   - component: {fileID: 1782712240}
   - component: {fileID: 1782712239}
+  - component: {fileID: 1782712243}
   m_Layer: 0
   m_Name: AR Camera
   m_TagString: MainCamera
@@ -1070,3 +1059,19 @@ Transform:
   m_Father: {fileID: 161583288}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1782712243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1782712237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b15f82cc229284894964d2d30806969d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HumanSegmentationStencilMode: 0
+  m_HumanSegmentationDepthMode: 0
+  m_EnvironmentDepthMode: 3
+  m_OcclusionPreferenceMode: 0

@@ -8,6 +8,7 @@ using UnityEngine.Assertions;
 using Unity.Collections;
 using UniRx;
 using UniRx.Triggers;
+using Cysharp.Threading.Tasks;
 
 namespace Arex
 {

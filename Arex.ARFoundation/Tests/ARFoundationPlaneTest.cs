@@ -95,7 +95,9 @@ namespace Arex.ARFoundation.Tests
             public Vector2 size { get; }
             public NativeArray<Vector2> boundary { get; set; }
             public IARPlane subsumedBy { get; }
+            public Transform transform { get; }
             public bool visible { get; set; }
+            public Material material { get; set; }
             public string ToShortStrig() { return ""; }
             public void SetFlag(ARPlaneDebugFlag flag) { }
             public void ClearFlag(ARPlaneDebugFlag flag) { }

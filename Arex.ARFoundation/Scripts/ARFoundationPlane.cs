@@ -16,6 +16,7 @@ namespace Arex.ARFoundation
         ARFoundationPlane subsumePlane;
         ARPlaneDebugFlag flag;
         IDisposable debugTextDisposable;
+        MeshRenderer meshRenderer;
 
         object IARPlane.internalObject { get => nativePlane; }
         public int id
@@ -50,6 +51,12 @@ namespace Arex.ARFoundation
         {
             get => gameObject.activeSelf;
             set => gameObject.SetActive(value);
+        }
+
+        Material IARPlane.material
+        {
+            get => meshRenderer.material;
+            set => meshRenderer.material = value;
         }
 
         void setShowInfoFlag(bool enable)
@@ -144,10 +151,11 @@ namespace Arex.ARFoundation
         void Awake()
         {
             this.nativePlane = GetComponent<ARPlane>();
-            Observable.FromEvent<ARPlaneBoundaryChangedEventArgs>(h => this.nativePlane.boundaryChanged += h, h => this.nativePlane.boundaryChanged -= h)
-                .Subscribe(arg => {
-                    Debug.Log($"Updated: #{_id}");
-                }).AddTo(this);
+            this.meshRenderer = GetComponent<MeshRenderer>();
+            // Observable.FromEvent<ARPlaneBoundaryChangedEventArgs>(h => this.nativePlane.boundaryChanged += h, h => this.nativePlane.boundaryChanged -= h)
+            //     .Subscribe(arg => {
+            //         Debug.Log($"Updated: #{_id}");
+            //     }).AddTo(this);
         }
     }
 }

@@ -113,7 +113,7 @@ namespace Arex
                 var diff = planeManager_.ActivePlanes().Count() - currentPlanes;
                 if (diff >= numPlanes)
                 {
-                    return (true, "");
+                    return (true, $"Found {diff} planes");
                 }
                 else
                 {
@@ -133,6 +133,10 @@ namespace Arex
             planeManager_.EnableSearchPlanes = true;
             var disposable = new CompositeDisposable();
             var currentPlanes = planeManager_.ActivePlanes().Count();
+            var ret = new PlaneScanResultArg();
+            bool did_timeout = false;
+            float errorTime = 0;
+            Exception error = null;
 
             if (waitFirstPlane)
             {
@@ -147,23 +151,19 @@ namespace Arex
                 }
                 catch (TimeoutException)
                 {
-                    return new PlaneScanResultArg
-                    {
-                        result = PlaneScanResult.Timeout,
-                        message = "No planes found"
-                    };
+                    ret.result = PlaneScanResult.Timeout;
+                    ret.message = "No planes found";
+                    did_timeout = true;
+                    goto error;
                 }
                 catch (OperationCanceledException)
                 {
-                    return new PlaneScanResultArg
-                    {
-                        result = PlaneScanResult.Cancel,
-                    };
+                    ret.result = PlaneScanResult.Cancel;
+                    goto error;
                 }
             }
 
             // meature in session error
-            float errorTime = 0;
             this.UpdateAsObservable().Subscribe(_ =>
             {
                 if (session.State.Value != ARSessionState.Tracking)
@@ -173,8 +173,6 @@ namespace Arex
             // scan planes
             var scanTask = scanPlanes(condition, disposable, token);
 
-            bool did_timeout = false;
-            Exception error = null;
             string message = null;
             try
             {
@@ -198,17 +196,12 @@ namespace Arex
             {
                 error = e;
             }
+            ret.planesFound = planeManager_.planes.Where(p => !p.subsumed()).Count() - currentPlanes;
+            ret.message = message;
 
-            var planesFound = planeManager_.planes.Where(p => !p.subsumed()).Count() - currentPlanes;
-
+        error:
             planeManager_.EnableSearchPlanes = false;
             disposable.Dispose();
-
-            var ret = new PlaneScanResultArg
-            {
-                planesFound = planesFound,
-                message = message
-            };
 
             if (!token.IsCancellationRequested)
             {
@@ -226,7 +219,7 @@ namespace Arex
                     else
                     {
                         ret.result = PlaneScanResult.Timeout;
-                        ret.message = $"{planesFound} planes found.";
+                        ret.message = $"{ret.planesFound} planes found.";
                     }
                 }
             }
