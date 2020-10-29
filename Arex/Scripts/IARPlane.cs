@@ -27,7 +27,6 @@ namespace Arex
         Vector3 center { get; }
         Vector2 extents { get; }
         Vector2 size { get; }
-        NativeArray<Vector2> boundary { get; }
 
         Transform transform { get; }
         IARPlane subsumedBy { get; }
@@ -35,6 +34,7 @@ namespace Arex
         Material material { get; set; }
 
         string ToShortStrig();
+        float GetArea();
 
         void SetFlag(ARPlaneDebugFlag flag);
         void ClearFlag(ARPlaneDebugFlag flag);
@@ -45,25 +45,6 @@ namespace Arex
     {
         public static bool subsumed(this IARPlane plane) {
             return plane.subsumedBy != null;
-        }
-
-        public static float CalcArea(this IARPlane plane) {
-            Vector2 origin = Vector2.zero;
-            Vector2 prev = Vector2.zero;
-            float ret = 0;
-            foreach(var (p,i) in plane.boundary.Select((p,i)=>(p,i))) {
-                if(i==0) {
-                    origin = p;
-                } else if(i==1) {
-                    prev = p;
-                } else {
-                    var v1 = prev - origin;
-                    var v2 = p - origin;
-                    ret += Mathf.Abs(v1.x * v2.y - v1.y * v2.x) / 2.0f;
-                    prev = p;
-                }
-            }
-            return ret;
         }
     }
 }

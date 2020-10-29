@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using Unity.Collections;
@@ -17,6 +18,7 @@ namespace Arex.ARFoundation
         ARPlaneDebugFlag flag;
         IDisposable debugTextDisposable;
         MeshRenderer meshRenderer;
+        float? areaCalculated;
 
         object IARPlane.internalObject { get => nativePlane; }
         public int id
@@ -29,7 +31,6 @@ namespace Arex.ARFoundation
         Vector3 IARPlane.center { get => nativePlane.center; }
         Vector2 IARPlane.extents { get => nativePlane.extents; }
         Vector2 IARPlane.size { get => nativePlane.size; }
-        NativeArray<Vector2> IARPlane.boundary { get => nativePlane.boundary; }
 
         public IARPlane subsumedBy
         {
@@ -148,14 +149,52 @@ namespace Arex.ARFoundation
             return $"{vString()}IPlane(#{_id})";
         }
 
+        public float GetArea()
+        {
+            if (!areaCalculated.HasValue)
+            {
+                areaCalculated = nativePlane.boundary.CalcArea();
+            }
+            return areaCalculated.Value;
+        }
+
         void Awake()
         {
             this.nativePlane = GetComponent<ARPlane>();
             this.meshRenderer = GetComponent<MeshRenderer>();
-            // Observable.FromEvent<ARPlaneBoundaryChangedEventArgs>(h => this.nativePlane.boundaryChanged += h, h => this.nativePlane.boundaryChanged -= h)
-            //     .Subscribe(arg => {
-            //         Debug.Log($"Updated: #{_id}");
-            //     }).AddTo(this);
+            Observable.FromEvent<ARPlaneBoundaryChangedEventArgs>(h => this.nativePlane.boundaryChanged += h, h => this.nativePlane.boundaryChanged -= h)
+                .Subscribe(arg => {
+                    areaCalculated = null; // updated
+                }).AddTo(this);
+        }
+    }
+
+    public static class ARPlaneExtensions
+    {
+        public static float CalcArea(this NativeArray<Vector2> boundary)
+        {
+            Vector2 origin = Vector2.zero;
+            Vector2 prev = Vector2.zero;
+            float ret = 0;
+            foreach (var (p, i) in boundary.Select((p, i) => (p, i)))
+            {
+                if (i == 0)
+                {
+                    origin = p;
+                }
+                else if (i == 1)
+                {
+                    prev = p;
+                }
+                else
+                {
+                    var v1 = prev - origin;
+                    var v2 = p - origin;
+                    ret += Mathf.Abs(v1.x * v2.y - v1.y * v2.x) / 2.0f;
+                    prev = p;
+                }
+            }
+            return ret;
         }
     }
 }

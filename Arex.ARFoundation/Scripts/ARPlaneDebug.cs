@@ -31,8 +31,8 @@ namespace Arex.ARFoundation
 
             Observable.FromEvent<ARPlaneBoundaryChangedEventArgs>(h => nativePlane.boundaryChanged += h, h => nativePlane.boundaryChanged -= h)
                 .Subscribe(e => {
-                    area = plane.CalcArea();
-                    boundary = plane.boundary.ToArray();
+                    area = plane.GetArea();
+                    boundary = nativePlane.boundary.ToArray();
                 }).AddTo(this);
 
             Assert.IsNotNull(nativePlane);

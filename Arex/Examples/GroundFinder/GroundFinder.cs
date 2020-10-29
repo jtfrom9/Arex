@@ -96,8 +96,8 @@ namespace Arex.Examples
                 (planeManager) => {
                     var planes = new List<IARPlane>();
                     foreach(var plane in planeManager.ActivePlanes()) {
-                        var area = plane.CalcArea();
-                        Debug.Log($"scanning. #{plane.id} {area}");
+                        var area = plane.GetArea();
+                        // Debug.Log($"scanning. #{plane.id} {area}");
                         if (area >= condition.largeArea)
                         {
                             planes.Add(plane);
@@ -120,14 +120,14 @@ namespace Arex.Examples
             if (ret.result == PlaneScanResult.Found || ret.result == PlaneScanResult.Timeout)
             {
                 debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message})");
-                var orderedPlanes = planeScanner.planeManager.ActivePlanes().OrderByDescending(p => p.CalcArea()); // fixme
+                var orderedPlanes = planeScanner.planeManager.ActivePlanes().OrderByDescending(p => p.GetArea()); // fixme
                 var maxPlane = orderedPlanes.FirstOrDefault();
-                var maxArea = maxPlane.CalcArea();
+                var maxArea = maxPlane.GetArea();
                 var lowestPlane = maxPlane;
 
                 foreach (var plane in orderedPlanes)
                 {
-                    var square = plane.CalcArea();
+                    var square = plane.GetArea();
                     if (square < maxArea * 0.75f)
                     {
                         break;
@@ -144,13 +144,13 @@ namespace Arex.Examples
                 setAllPlaneVisible(false);
                 setGroundVisible(true);
                 setGroundMaterial(groundMaterial);
-                debugPanel.PrintLog($"<color=red>max lowest is #{maxPlane.id} area={maxPlane.CalcArea()}</color>");
+                debugPanel.PrintLog($"<color=red>max lowest is #{maxPlane.id} area={maxPlane.GetArea()}</color>");
             }
             else
             {
                 debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message})");
                 var actives = planeScanner.planeManager.ActivePlanes();
-                var msg = string.Join(",", actives.Select(p => $"#{p.id}({p.CalcArea()})"));
+                var msg = string.Join(",", actives.Select(p => $"#{p.id}({p.GetArea()})"));
                 debugPanel.PrintLog($"planes are {msg}");
                 foreach(var plane in actives) {
                     // plane.SetFlag(ARPlaneDebugFlag.OutlineOnly);
