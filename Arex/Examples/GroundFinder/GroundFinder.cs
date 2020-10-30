@@ -27,11 +27,13 @@ namespace Arex.Examples
         public Button scanButton;
         // public Button clearButton;
         public DebugPanel debugPanel;
+        public Toggle occulusionToggle;
 
         [SerializeField] GroudFindCondition condition;
         [SerializeField] Material groundMaterial;
 
         PlaneScanner planeScanner;
+        IAROcclusionManager occlusionManager;
         IARPlane groundPlane = null;
         Material matBackup;
         GameObject offset;
@@ -209,6 +211,11 @@ namespace Arex.Examples
             //     clearButton.interactable = planeScanner.planeManager.planes.Count() > 0
             //         && !planeScanner.planeManager.EnableSearchPlanes;
             // }).AddTo(this);
+
+            this.occlusionManager = ARServiceLocator.Instant.GetOcclusionManager();
+            occulusionToggle.OnValueChangedAsObservable().Subscribe(v => {
+                occlusionManager.EnableOcculusion = v;
+            }).AddTo(this);
         }
 
         void Awake()
