@@ -17,6 +17,7 @@ namespace Arex.Examples
         public float largeArea = 5.0f;
         public float midArea = 3.0f;
         public int numMidPlane = 3;
+        public float radius = 3.0f;
     }
 
     [RequireComponent(typeof(PlaneScanner))]
@@ -74,6 +75,10 @@ namespace Arex.Examples
                     this.offset.transform.position = Vector3.zero + new Vector3(0, 0.1f, 0);
                     this.offset.transform.SetParent(this.trackablesTransform);
                     this.groundPlane.transform.SetParent(this.offset.transform);
+                    debugPanel.PrintLog(string.Format("<color=red>Ground is #{0} area={1} center={2}</color>",
+                        this.groundPlane.id,
+                        this.groundPlane.GetArea(),
+                        this.groundPlane.center.ToString()));
                 }
             }
         }
@@ -88,6 +93,7 @@ namespace Arex.Examples
 
         async UniTask scanPlane(CancellationToken token)
         {
+            var currentPosition = cameraTransform.position;
             setAllPlaneVisible(true);
             setGroundMaterial(null);
             setGroundPlane(null);
@@ -116,11 +122,11 @@ namespace Arex.Examples
                 timeout: 10, token: token,
                 waitFirstPlane: true, firstTimeout: 5);
 
-            // if (ret.result == PlaneScanResult.Found) // || ret.result == PlaneScanResult.Timeout) && ret.planesFound > 0)
             if (ret.result == PlaneScanResult.Found || ret.result == PlaneScanResult.Timeout)
             {
                 debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message})");
-                var orderedPlanes = planeScanner.planeManager.ActivePlanes().OrderByDescending(p => p.GetArea()); // fixme
+                var nearPlanes = planeScanner.planeManager.ActivePlanes().Where(p => (p.center - currentPosition).magnitude <= condition.radius);
+                var orderedPlanes = nearPlanes.OrderByDescending(p => p.GetArea());
                 var maxPlane = orderedPlanes.FirstOrDefault();
                 var maxArea = maxPlane.GetArea();
                 var lowestPlane = maxPlane;
@@ -144,7 +150,6 @@ namespace Arex.Examples
                 setAllPlaneVisible(false);
                 setGroundVisible(true);
                 setGroundMaterial(groundMaterial);
-                debugPanel.PrintLog($"<color=red>max lowest is #{maxPlane.id} area={maxPlane.GetArea()}</color>");
             }
             else
             {
@@ -166,14 +171,14 @@ namespace Arex.Examples
             this.UpdateAsObservable().Subscribe(_ =>
             {
                 var distance = (currentPosition - cameraTransform.position).magnitude;
-                if (distance > 3.0f)
+                if (distance > condition.radius)
                 {
                     debugPanel.PrintLog("Moved too far. cancel plane scan");
                     cts.Cancel();
                     cts.Dispose();
                     cts = null;
                 }
-                else if (distance > 1.2f)
+                else if (distance > condition.radius/2.0)
                 {
                     debugPanel.PrintLog($"Stay and scan your surroundings. moved {distance} meters");
                 }
