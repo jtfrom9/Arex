@@ -103,37 +103,38 @@ namespace Arex.Examples
             var currentPosition = cameraTransform.position;
             setAllPlaneVisible(true);
             setGroundMaterial(null);
-            setGroundPlane(null);
 
             var ret = await planeScanner.Scan(
-                (planeManager) => {
-                    var planes = new List<IARPlane>();
-                    foreach(var plane in planeManager.ActivePlanes()) {
+                (planeManager, planes) =>
+                {
+                    foreach (var plane in planeManager.ActivePlanes().Where(p => (p.center - currentPosition).magnitude <= condition.radius))
+                    {
                         var area = plane.GetArea();
-                        // Debug.Log($"scanning. #{plane.id} {area}");
-                        if (area >= condition.largeArea)
+                        if (area >= condition.largeArea && plane!=this.groundPlane)
                         {
                             planes.Add(plane);
-                            return (true, $"Found a large plane ({plane.ToShortStrig()}, area={area})");
+                            return (true, $"Found A New Large Plane ({plane.ToShortStrig()}, area={area}, center={plane.center})");
                         }
                         else if (area >= condition.midArea)
                         {
                             planes.Add(plane);
                         }
                     }
-                    if (planes.Count >= condition.numMidPlane)
-                        return (true, $"Found more {condition.numMidPlane} planes ({string.Join(",", planes.Select(p => p.ToShortStrig()))})");
-                    else
+                    if (planes.Count >= condition.numMidPlane) {
+                        var planeInfo = planes.Select(p => $"{p.ToShortStrig()}({p.GetArea()}");
+                        return (true, $"Found more {condition.numMidPlane} planes ({string.Join(",", planeInfo)})");
+                    } else {
                         return (false, "");
+                    }
                 },
-                timeout: 10, token: token,
-                waitFirstPlane: true, firstTimeout: 5);
+                timeout: 10, token: token);
 
-            if (ret.result == PlaneScanResult.Found || ret.result == PlaneScanResult.Timeout)
+            if (ret.result == PlaneScanResult.Found)
             {
-                debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message})");
-                var nearPlanes = planeScanner.planeManager.ActivePlanes().Where(p => (p.center - currentPosition).magnitude <= condition.radius);
-                var orderedPlanes = nearPlanes.OrderByDescending(p => p.GetArea());
+                debugPanel.PrintLog($"<color=red>{ret.result.ToString()} ({ret.message})</color>");
+                // var nearPlanes = planeScanner.planeManager.ActivePlanes().Where(p => (p.center - currentPosition).magnitude <= condition.radius);
+                // var orderedPlanes = nearPlanes.OrderByDescending(p => p.GetArea());
+                var orderedPlanes = ret.planes.OrderByDescending(p => p.GetArea());
                 var maxPlane = orderedPlanes.FirstOrDefault();
                 var maxArea = maxPlane.GetArea();
                 var lowestPlane = maxPlane;
@@ -152,23 +153,18 @@ namespace Arex.Examples
                 }
                 // select ground plane
                 setGroundPlane(lowestPlane);
-
-                // make rest of all invisible
-                setAllPlaneVisible(false);
-                setGroundVisible(true);
-                setGroundMaterial(groundMaterial);
             }
             else
             {
-                debugPanel.PrintLog($"{ret.result.ToString()} ({ret.message})");
+                debugPanel.PrintLog($"<color=blue>{ret.result.ToString()} ({ret.message})</color>");
                 var actives = planeScanner.planeManager.ActivePlanes();
                 var msg = string.Join(",", actives.Select(p => $"#{p.id}({p.GetArea()})"));
                 debugPanel.PrintLog($"planes are {msg}");
-                foreach(var plane in actives) {
-                    // plane.SetFlag(ARPlaneDebugFlag.OutlineOnly);
-                    plane.visible = false;
-                }
             }
+
+            setAllPlaneVisible(false);
+            setGroundVisible(true);
+            setGroundMaterial(groundMaterial);
         }
 
         CancellationToken watchCameraMove(CompositeDisposable disposable)

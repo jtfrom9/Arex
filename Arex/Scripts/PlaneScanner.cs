@@ -26,7 +26,7 @@ namespace Arex
     public struct PlaneScanResultArg
     {
         public PlaneScanResult result;
-        public int planesFound;
+        public List<IARPlane> planes;
         public string message;
     }
 
@@ -51,48 +51,28 @@ namespace Arex
             this.planeManager_ = ARServiceLocator.Instant.GetPlaneManager();
         }
 
-        UniTask scanPlanes(CompositeDisposable dispoable,
-                int currentPlanes,
-                int newPlanes,
-                Predicate<IARPlane> condition,
-                CancellationToken token)
-        {
-            var utc = new UniTaskCompletionSource();
-
-            Action<IARPlane> handler = (plane) =>
-            {
-                if (token.IsCancellationRequested)
-                {
-                    utc.TrySetCanceled();
-                }
-                var totalPlanes = planeManager_.planes.Where(p => condition(p)).Count();
-                if (totalPlanes >= currentPlanes + newPlanes)
-                {
-                    utc.TrySetResult();
-                }
-            };
-            planeManager_.Added.Subscribe(handler).AddTo(dispoable);
-            planeManager_.Updated.Subscribe(handler).AddTo(dispoable);
-
-            return utc.Task;
+        struct ScanResult {
+            public string message;
+            public List<IARPlane> planes;
         }
 
-        UniTask<string> scanPlanes(Func<IARPlaneManager, (bool, string)> condition,
-                CompositeDisposable dispoable,
-                CancellationToken token)
+        UniTask<ScanResult> scanPlanes(Func<IARPlaneManager, List<IARPlane>, (bool, string)> scanCompletionConditionHandler,
+            CompositeDisposable dispoable,
+            CancellationToken token)
         {
-            var utc = new UniTaskCompletionSource<string>();
+            var utc = new UniTaskCompletionSource<ScanResult>();
 
-            Action<IARPlane> handler = (plane) =>
+            Action<IARPlane> handler = (_) =>
             {
                 if (token.IsCancellationRequested)
                 {
                     utc.TrySetCanceled();
                 }
-                var (result, message) = condition(this.planeManager);
+                var tmp_planes = new List<IARPlane>();
+                var (result, message) = scanCompletionConditionHandler(this.planeManager, tmp_planes);
                 if (result)
                 {
-                    utc.TrySetResult(message);
+                    utc.TrySetResult(new ScanResult { message = message, planes = tmp_planes });
                 }
             };
             planeManager_.Added.Subscribe(handler).AddTo(dispoable);
@@ -103,12 +83,10 @@ namespace Arex
         public UniTask<PlaneScanResultArg> Scan(
             int numPlanes,
             int timeout,
-            CancellationToken token,
-            bool waitFirstPlane = false,
-            int firstTimeout = 10)
+            CancellationToken token)
         {
             var currentPlanes = planeManager_.ActivePlanes().Count();
-            return Scan(_ =>
+            return Scan((_, planes) =>
             {
                 var diff = planeManager_.ActivePlanes().Count() - currentPlanes;
                 if (diff >= numPlanes)
@@ -120,48 +98,22 @@ namespace Arex
                     return (false, "");
                 }
             },
-            timeout, token, waitFirstPlane, firstTimeout);
+            timeout, token);
         }
 
         async public UniTask<PlaneScanResultArg> Scan(
-            Func<IARPlaneManager, (bool, string)> condition,
+            Func<IARPlaneManager, List<IARPlane>, (bool, string)> scanCompletionConditionHandler,
             int timeout,
-            CancellationToken token,
-            bool waitFirstPlane = false,
-            int firstTimeout = 10)
+            CancellationToken token)
         {
-            planeManager_.EnableSearchPlanes = true;
             var disposable = new CompositeDisposable();
             var currentPlanes = planeManager_.ActivePlanes().Count();
-            var ret = new PlaneScanResultArg();
             bool did_timeout = false;
             float errorTime = 0;
             Exception error = null;
 
-            if (waitFirstPlane)
-            {
-                try
-                {
-                    var task = scanPlanes(_ =>
-                    {
-                        var result = planeManager_.planes.Where(plane => !plane.subsumed()).Count() > currentPlanes;
-                        return (result, "");
-                    }, disposable, token);
-                    await task.Timeout(TimeSpan.FromSeconds(firstTimeout));
-                }
-                catch (TimeoutException)
-                {
-                    ret.result = PlaneScanResult.Timeout;
-                    ret.message = "No planes found";
-                    did_timeout = true;
-                    goto error;
-                }
-                catch (OperationCanceledException)
-                {
-                    ret.result = PlaneScanResult.Cancel;
-                    goto error;
-                }
-            }
+            // begin search planes
+            planeManager_.EnableSearchPlanes = true;
 
             // meature in session error
             this.UpdateAsObservable().Subscribe(_ =>
@@ -171,18 +123,17 @@ namespace Arex
             }).AddTo(disposable);
 
             // scan planes
-            var scanTask = scanPlanes(condition, disposable, token);
-
-            string message = null;
+            var scanTask = scanPlanes(scanCompletionConditionHandler, disposable, token);
+            var scanResult = new ScanResult { planes = new List<IARPlane>() };
             try
             {
                 if (timeout <= 0)
                 {
-                    message = await scanTask;
+                    scanResult = await scanTask;
                 }
                 else
                 {
-                    message = await scanTask.Timeout(TimeSpan.FromSeconds(timeout));
+                    scanResult = await scanTask.Timeout(TimeSpan.FromSeconds(timeout));
                 }
             }
             catch (TimeoutException)
@@ -196,10 +147,13 @@ namespace Arex
             {
                 error = e;
             }
-            ret.planesFound = planeManager_.planes.Where(p => !p.subsumed()).Count() - currentPlanes;
-            ret.message = message;
+            var ret = new PlaneScanResultArg()
+            {
+                message = scanResult.message,
+                planes = scanResult.planes,
+            };
 
-        error:
+            // end of search planes
             planeManager_.EnableSearchPlanes = false;
             disposable.Dispose();
 
@@ -219,7 +173,7 @@ namespace Arex
                     else
                     {
                         ret.result = PlaneScanResult.Timeout;
-                        ret.message = $"{ret.planesFound} planes found.";
+                        ret.message = $"{ret.planes.Count} planes matched";
                     }
                 }
             }

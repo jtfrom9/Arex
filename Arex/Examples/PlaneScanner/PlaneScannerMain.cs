@@ -35,11 +35,11 @@ namespace Arex.Examples
 
             if (ret.result == PlaneScanResult.Found)
             {
-                printLog($"Scan done: {ret.planesFound} planes found.");
+                printLog($"Scan done: {ret.planes.Count} planes found.");
             }
             else if (ret.result == PlaneScanResult.Timeout)
             {
-                printLog($"Scan timeout: {ret.planesFound} planes found.");
+                printLog($"Scan timeout: {ret.planes.Count} planes found.");
             }
             else if (ret.result == PlaneScanResult.Error)
             {
