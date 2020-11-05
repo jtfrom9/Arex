@@ -28,6 +28,7 @@ namespace Arex.Examples
         // public Button clearButton;
         public DebugPanel debugPanel;
         public Toggle occulusionToggle;
+        public Slider groundYSlider;
 
         [SerializeField] GroudFindCondition condition;
         [SerializeField] Material groundMaterial;
@@ -36,8 +37,9 @@ namespace Arex.Examples
         IAROcclusionManager occlusionManager;
         IARPlane groundPlane = null;
         Material matBackup;
-        GameObject offset;
+        GameObject groundBase;
         Transform trackablesTransform;
+        float groundOffsetY = 0.1f;
 
         void setGroundVisible(bool v)
         {
@@ -74,14 +76,17 @@ namespace Arex.Examples
                 if (this.groundPlane != null)
                 {
                     this.trackablesTransform = this.groundPlane.transform.parent;
-                    this.offset.transform.position = Vector3.zero + new Vector3(0, 0.1f, 0);
-                    this.offset.transform.SetParent(this.trackablesTransform);
-                    this.groundPlane.transform.SetParent(this.offset.transform);
+                    this.groundBase.transform.position = Vector3.zero + new Vector3(0, 0.1f, 0);
+                    this.groundBase.transform.SetParent(this.trackablesTransform);
+                    this.groundPlane.transform.SetParent(this.groundBase.transform);
                     debugPanel.PrintLog(string.Format("<color=red>Ground is #{0} area={1} center={2}</color>",
                         this.groundPlane.id,
                         this.groundPlane.GetArea(),
                         this.groundPlane.center.ToString()));
                 }
+            } else if (plane != null)
+            {
+                debugPanel.PrintLog($"same plane (#{plane.id}) are ground");
             }
         }
 
@@ -216,12 +221,22 @@ namespace Arex.Examples
             occulusionToggle.OnValueChangedAsObservable().Subscribe(v => {
                 occlusionManager.EnableOcculusion = v;
             }).AddTo(this);
+
+            groundYSlider.value = groundOffsetY;
+            groundYSlider.OnValueChangedAsObservable().Subscribe(v =>
+            {
+                groundOffsetY = v;
+                if(groundBase!=null) {
+                    var pos = groundBase.transform.position;
+                    groundBase.transform.position = new Vector3(pos.x, groundOffsetY, pos.z);
+                }
+            }).AddTo(this);
         }
 
         void Awake()
         {
             this.planeScanner = GetComponent<PlaneScanner>();
-            this.offset = new GameObject("offset");
+            this.groundBase = new GameObject("offset");
         }
     }
 }
