@@ -62,7 +62,7 @@ namespace Arex
         {
             var utc = new UniTaskCompletionSource<ScanResult>();
 
-            Action<IARPlane> handler = (_) =>
+            Action handler = () =>
             {
                 if (token.IsCancellationRequested)
                 {
@@ -75,8 +75,11 @@ namespace Arex
                     utc.TrySetResult(new ScanResult { message = message, planes = tmp_planes });
                 }
             };
-            planeManager_.Added.Subscribe(handler).AddTo(dispoable);
-            planeManager_.Updated.Subscribe(handler).AddTo(dispoable);
+            planeManager_.Added.Subscribe(_=> handler()).AddTo(this);
+            planeManager_.Updated.Where(p => !p.subsumed()).ThrottleFirst(TimeSpan.FromSeconds(1)).Subscribe(plane => {
+                Debug.Log($"Updated: {plane.ToShortStrig()}");
+                handler();
+            }).AddTo(dispoable);
             return utc.Task;
         }
 

@@ -157,9 +157,14 @@ namespace Arex.Examples
             else
             {
                 debugPanel.PrintLog($"<color=blue>{ret.result.ToString()} ({ret.message})</color>");
-                var actives = planeScanner.planeManager.ActivePlanes();
-                var msg = string.Join(",", actives.Select(p => $"#{p.id}({p.GetArea()})"));
-                debugPanel.PrintLog($"planes are {msg}");
+                var planes = planeScanner.planeManager.ActivePlanes().Where(p => p != this.groundPlane);
+                var msg = string.Join(",", planes.Select(p => $"#{p.id}({p.GetArea()})"));
+                if (groundPlane == null)
+                {
+                    debugPanel.PrintLog($"No ground choosen, planes are {msg}");
+                } else {
+                    debugPanel.PrintLog($"{groundPlane.ToShortStrig()} still choosen as ground, planes are {msg}");
+                }
             }
 
             setAllPlaneVisible(false);
@@ -196,6 +201,10 @@ namespace Arex.Examples
 
                 scanButton.interactable = false;
                 var disposable = new CompositeDisposable();
+
+                Observable.Interval(TimeSpan.FromSeconds(1)).Subscribe(x => {
+                    debugPanel.PrintLog("Scanning...");
+                }).AddTo(disposable);
                 await scanPlane(watchCameraMove(disposable));
                 disposable.Dispose();
                 scanButton.interactable = true;
