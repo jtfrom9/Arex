@@ -8,6 +8,7 @@ namespace Arex
     {
         IARSession session;
         IARPlaneManager planeManager;
+        IARPlaneRaycastManager planeRaycastManager;
         IAROcclusionManager occlusionManager;
 
         static ARServiceLocator inst = null;
@@ -33,6 +34,11 @@ namespace Arex
             this.planeManager = planeManager;
         }
 
+        public void Register(IARPlaneRaycastManager planeRaycastManager)
+        {
+            this.planeRaycastManager = planeRaycastManager;
+        }
+
         public void Register(IAROcclusionManager occlusionManager)
         {
             this.occlusionManager = occlusionManager;
@@ -46,6 +52,11 @@ namespace Arex
         public IARPlaneManager GetPlaneManager()
         {
             return planeManager;
+        }
+
+        public IARPlaneRaycastManager GetPlaneRaycastManager()
+        {
+            return planeRaycastManager;
         }
 
         public IAROcclusionManager GetOcclusionManager()

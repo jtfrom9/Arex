@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 using UniRx;
 using Cysharp.Threading.Tasks;
 using Arex;
@@ -13,7 +14,7 @@ namespace Arex.ARFoundation
 {
     [RequireComponent(typeof(ARPlaneManager))]
     [RequireComponent(typeof(ARRaycastManager))]
-    public class ARFoundationPlaneManager : MonoBehaviour, IARPlaneManager
+    public class ARFoundationPlaneManager : MonoBehaviour, IARPlaneManager, IARPlaneRaycastManager
     {
         [SerializeField] bool inspectorDebug = false;
 
@@ -32,7 +33,8 @@ namespace Arex.ARFoundation
 
         void Awake()
         {
-            ARServiceLocator.Instant.Register(this);
+            ARServiceLocator.Instant.Register(this as IARPlaneManager);
+            ARServiceLocator.Instant.Register(this as IARPlaneRaycastManager);
 
             planeManager = GetComponent<ARPlaneManager>();
             raycastManager = GetComponent<ARRaycastManager>();
@@ -213,5 +215,28 @@ namespace Arex.ARFoundation
         //     await UniTask.DelayFrame(10);
         //     planeDicts.Clear();
         // }
+
+        bool IARPlaneRaycastManager.Raycast(Vector2 pos, out RaycastHit hit)
+        {
+            hit = new RaycastHit();
+            var hits = new List<ARRaycastHit>();
+            if (!this.raycastManager.Raycast(pos, hits, TrackableType.Planes))
+            {
+                return false;
+            }
+            Debug.Log($"hits={hits.Count}");
+            foreach (var h in hits)
+            {
+                Debug.Log($"{h}");
+                var nativePlane = h.trackable as ARPlane;
+                if (planeDicts.ContainsKey(nativePlane))
+                {
+                    hit.pose = h.pose;
+                    hit.plane = planeDicts[nativePlane];
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

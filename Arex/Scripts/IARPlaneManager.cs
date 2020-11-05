@@ -25,6 +25,17 @@ namespace Arex
         IEnumerable<IARPlane> planes { get; }
     }
 
+    public struct RaycastHit
+    {
+        public Pose pose;
+        public IARPlane plane;
+    }
+
+    public interface IARPlaneRaycastManager
+    {
+        bool Raycast(Vector2 pos, out RaycastHit hit);
+    }
+
     public static class ARPlaneManagerExtensions
     {
         public static IEnumerable<IARPlane> ActivePlanes(this IARPlaneManager pm)
