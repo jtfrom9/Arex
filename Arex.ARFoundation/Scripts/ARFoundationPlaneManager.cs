@@ -225,13 +225,12 @@ namespace Arex.ARFoundation
         {
             hit = new RaycastHit();
             var hits = new List<ARRaycastHit>();
-            if (!this.raycastManager.Raycast(pos, hits, TrackableType.Planes))
+            if (!this.raycastManager.Raycast(pos, hits, TrackableType.PlaneWithinPolygon))
             {
                 return false;
             }
             foreach (var h in hits)
             {
-                Debug.Log($"{h}");
                 var nativePlane = h.trackable as ARPlane;
                 if (planeDicts.ContainsKey(nativePlane))
                 {
