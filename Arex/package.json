@@ -1,0 +1,15 @@
+{
+    "name": "com.jtfrom9.arex",
+    "displayName": "Arex",
+    "description": "AR Experiments Core",
+    "version": "0.0.1",
+    "unity": "2019.4",
+    "author": {
+        "name": "jtfrom9",
+        "email": "jun.tachikawa@gmail.com"
+    },
+    "dependencies": {
+        "com.cysharp.unitask": "2.0.36",
+        "com.neuecc.unirx": "7.1.0"
+    }
+}
