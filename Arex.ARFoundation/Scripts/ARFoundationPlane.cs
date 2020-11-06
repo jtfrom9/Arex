@@ -20,6 +20,8 @@ namespace Arex.ARFoundation
         MeshRenderer meshRenderer;
         float? areaCalculated;
 
+        public ARFoundationPlaneManager manager { private get; set; }
+
         object IARPlane.internalObject { get => nativePlane; }
         public int id
         {
@@ -131,6 +133,16 @@ namespace Arex.ARFoundation
         }
 
         public ARPlaneDebugFlag Flag { get => this.flag; }
+
+        Transform IARPlane.GetAnchor(Pose pose)
+        {
+            return this.manager.GetAnchor(nativePlane, pose);
+        }
+
+        void IARPlane.RemoveAnchor(Transform anchor)
+        {
+            this.manager.RemoveAnchor(anchor);
+        }
 
         string vString()
         {

@@ -30,7 +30,8 @@ namespace Arex.Examples
                 Debug.Log($"touch: {e}");
                 RaycastHit hit;
                 if(raycastManager.Raycast(e.position, out hit)) {
-                    Instantiate(prefab, hit.pose.position, hit.pose.rotation);
+                    // Instantiate(prefab, hit.pose.position, hit.pose.rotation);
+                    Instantiate(prefab, hit.plane.GetAnchor(hit.pose));
                 }
             }).AddTo(this);
         }

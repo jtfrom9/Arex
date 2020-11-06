@@ -14,12 +14,14 @@ namespace Arex.ARFoundation
 {
     [RequireComponent(typeof(ARPlaneManager))]
     [RequireComponent(typeof(ARRaycastManager))]
+    [RequireComponent(typeof(ARAnchorManager))]
     public class ARFoundationPlaneManager : MonoBehaviour, IARPlaneManager, IARPlaneRaycastManager
     {
         [SerializeField] bool inspectorDebug = false;
 
         ARPlaneManager planeManager;
         ARRaycastManager raycastManager;
+        ARAnchorManager anchorManager;
         AROcclusionManager occlusionManager;
         int idCount = 0;
 
@@ -30,6 +32,7 @@ namespace Arex.ARFoundation
         Subject<IARPlane> removedSubject = new Subject<IARPlane>();
 
         Dictionary<ARPlane, IARPlane> planeDicts = new Dictionary<ARPlane, IARPlane>();
+        Dictionary<Transform, ARAnchor> anchorDicts = new Dictionary<Transform, ARAnchor>();
 
         void Awake()
         {
@@ -38,6 +41,7 @@ namespace Arex.ARFoundation
 
             planeManager = GetComponent<ARPlaneManager>();
             raycastManager = GetComponent<ARRaycastManager>();
+            anchorManager = GetComponent<ARAnchorManager>();
             occlusionManager = GetComponentInChildren<AROcclusionManager>();
             StopSearchPlanes();
         }
@@ -63,6 +67,7 @@ namespace Arex.ARFoundation
                 if(plane==null) {
                     plane = nativePlane.gameObject.AddComponent<ARFoundationPlane>();
                 }
+                plane.manager = this;
                 if(inspectorDebug) {
                     // add debug component
                     if (nativePlane.gameObject.GetComponent<ARPlaneDebug>() == null)
@@ -224,7 +229,6 @@ namespace Arex.ARFoundation
             {
                 return false;
             }
-            Debug.Log($"hits={hits.Count}");
             foreach (var h in hits)
             {
                 Debug.Log($"{h}");
@@ -237,6 +241,25 @@ namespace Arex.ARFoundation
                 }
             }
             return false;
+        }
+
+        internal Transform GetAnchor(ARPlane nativePlane, Pose pose)
+        {
+            if(!planeDicts.ContainsKey(nativePlane)) {
+                return null;
+            }
+            var anchor = this.anchorManager.AttachAnchor(nativePlane, pose);
+            anchorDicts[anchor.transform] = anchor;
+            return anchor.transform;
+        }
+
+        internal void RemoveAnchor(Transform anchor)
+        {
+            if (anchorDicts.ContainsKey(anchor))
+            {
+                anchorManager.RemoveAnchor(anchorDicts[anchor]);
+                anchorDicts.Remove(anchor);
+            }
         }
     }
 }

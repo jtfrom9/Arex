@@ -39,6 +39,9 @@ namespace Arex
         void SetFlag(ARPlaneDebugFlag flag);
         void ClearFlag(ARPlaneDebugFlag flag);
         ARPlaneDebugFlag Flag { get; }
+
+        Transform GetAnchor(Pose pose);
+        void RemoveAnchor(Transform anchor);
     }
 
     public static class IARPlaneExtensions
