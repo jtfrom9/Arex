@@ -29,9 +29,16 @@ namespace Arex.Examples
                 RaycastHit hit;
                 if (this.raycastManager.Raycast(center, out hit))
                 {
+                    Debug.Log($"rot = {hit.pose.rotation.eulerAngles}");
                     if (target == null)
                     {
                         target = Instantiate(prefab, hit.pose.position, hit.pose.rotation);
+                        var wavingQuad = target.GetComponent<Arex.Visual.WavingQuad>();
+                        if (wavingQuad != null)
+                        {
+                            wavingQuad.offsetY += 0.1f;
+                            wavingQuad.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                        }
                     }
                     else
                     {

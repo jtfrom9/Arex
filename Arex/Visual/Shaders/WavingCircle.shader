@@ -1,5 +1,9 @@
 ﻿Shader "Custom/WavingCircle"
 {
+    Properties {
+        _FG_Color ("Foreground Color", Color) = (0, 0, 0, 1)
+        _BG_Color ("Background Color", Color) = (1, 0, 0, 1)
+    }
     SubShader
     {
         Pass
@@ -45,16 +49,19 @@
 			    }
             }
 
+            fixed4 _FG_Color;
+            fixed4 _BG_Color;
+
             fixed4 frag2 (v2f i) : SV_Target
             {
                 float dist = distance(fixed2(0.5,0.5), i.uv);
                 float val = abs(sin(dist*6.0-_Time*100));
                 if(val > 0.98)
                 {
-                    return fixed4(1,1,1,1);
+                    return _FG_Color;
                 } else {
-				    return fixed4(110/255.0, 87/255.0, 139/255.0, 1);
-			    }
+                    return _BG_Color;
+                }
             }
 
             ENDCG
