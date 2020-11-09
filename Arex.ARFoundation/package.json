@@ -9,6 +9,9 @@
         "email": "jun.tachikawa@gmail.com"
     },
     "dependencies": {
+        "com.unity.xr.arfoundation": "4.1.0-preview.9",
+        "com.unity.xr.arcore": "4.1.0-preview.9",
+        "com.unity.xr.arkit": "4.1.0-preview.9",
         "com.jtfrom9.arex": "0.0.1"
     },
     "samples": [
