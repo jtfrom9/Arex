@@ -10,5 +10,12 @@
     },
     "dependencies": {
         "com.jtfrom9.arex": "0.0.1"
-    }
+    },
+    "samples": [
+        {
+            "displayName": "Samples",
+            "description": "Samples with ARFoundation",
+            "path": "Samples~"
+        }
+    ]
 }
