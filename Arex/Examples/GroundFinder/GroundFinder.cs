@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UniRx;
 using UniRx.Triggers;
 using Cysharp.Threading.Tasks;
+using Zenject;
 
 namespace Arex.Examples
 {
@@ -34,7 +35,7 @@ namespace Arex.Examples
         [SerializeField] Material groundMaterial;
 
         PlaneScanner planeScanner;
-        IAROcclusionManager occlusionManager;
+        [Inject] IAROcclusionManager occlusionManager;
         IARPlane groundPlane = null;
         Material matBackup;
         GameObject groundBase;
@@ -222,7 +223,6 @@ namespace Arex.Examples
             //         && !planeScanner.planeManager.EnableSearchPlanes;
             // }).AddTo(this);
 
-            this.occlusionManager = ARServiceLocator.Instant.GetOcclusionManager();
             occulusionToggle.OnValueChangedAsObservable().Subscribe(v => {
                 occlusionManager.EnableOcculusion = v;
             }).AddTo(this);

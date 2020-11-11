@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
+using Zenject;
 using Arex;
 
 namespace Arex.Examples
 {
     public class PlaneSelect : MonoBehaviour
     {
-        IARPlaneManager planeManager;
-        IARPlaneRaycastManager raycastManager;
+        [Inject] IARPlaneManager planeManager;
+        [Inject] IARPlaneRaycastManager raycastManager;
 
         [SerializeField] GameObject prefab;
 
@@ -18,9 +19,6 @@ namespace Arex.Examples
 
         void Start()
         {
-            this.planeManager = ARServiceLocator.Instant.GetPlaneManager();
-            this.raycastManager = ARServiceLocator.Instant.GetPlaneRaycastManager();
-
             this.planeManager.EnableSearchPlanes = true;
 
             var center = new Vector2 { x = Screen.width / 2, y = Screen.height / 2 };

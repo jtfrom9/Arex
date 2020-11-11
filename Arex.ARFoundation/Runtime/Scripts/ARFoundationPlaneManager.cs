@@ -36,9 +36,6 @@ namespace Arex.ARFoundation
 
         void Awake()
         {
-            ARServiceLocator.Instant.Register(this as IARPlaneManager);
-            ARServiceLocator.Instant.Register(this as IARPlaneRaycastManager);
-
             planeManager = GetComponent<ARPlaneManager>();
             raycastManager = GetComponent<ARRaycastManager>();
             anchorManager = GetComponent<ARAnchorManager>();

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Assertions;
 using UniRx;
+using Zenject;
 
 namespace Arex.Examples
 {
@@ -19,6 +20,10 @@ namespace Arex.Examples
         [SerializeField] bool initPlaneSearch = false;
         [SerializeField] bool initVisiblePlane = true;
         [SerializeField] bool initOcclusion = false;
+
+        [Inject] IARSession session;
+        [Inject] IARPlaneManager planeManager;
+        [Inject] IAROcclusionManager occlusionManager;
 
         // public void Init(IARSession session, IARPlaneManager planeManager)
         // {
@@ -41,10 +46,6 @@ namespace Arex.Examples
 
         void Start()
         {
-            var session = ARServiceLocator.Instant.GetSession();
-            var planeManager = ARServiceLocator.Instant.GetPlaneManager();
-            var occlutionManager = ARServiceLocator.Instant.GetOcclusionManager();
-
             Debug.Log($"{session}");
 
             planeManager.Added.Subscribe(plane => {
@@ -81,7 +82,7 @@ namespace Arex.Examples
                 toggleOcculusion.OnValueChangedAsObservable().Subscribe(v =>
                 {
                     Debug.Log($"toggleOcculusion: {v}");
-                    occlutionManager.EnableOcculusion = v;
+                    this.occlusionManager.EnableOcculusion = v;
                 }).AddTo(this);
             }
 

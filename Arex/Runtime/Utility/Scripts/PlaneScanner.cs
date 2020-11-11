@@ -7,6 +7,7 @@ using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
 using Cysharp.Threading.Tasks;
+using Zenject;
 
 namespace Arex
 {
@@ -38,18 +39,12 @@ namespace Arex
     public class PlaneScanner : MonoBehaviour
     {
         IUserGuidelineController guidelineController;
-        IARSession session;
-        IARPlaneManager planeManager_;
+        [Inject] IARSession session;
+        [Inject] IARPlaneManager planeManager_;
 
         CancellationTokenSource tokenSource;
 
         public IARPlaneManager planeManager { get => planeManager_; }
-
-        void Start()
-        {
-            this.session = ARServiceLocator.Instant.GetSession();
-            this.planeManager_ = ARServiceLocator.Instant.GetPlaneManager();
-        }
 
         struct ScanResult {
             public string message;

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using Cysharp.Threading.Tasks;
+using Zenject;
 
 namespace Arex.Examples
 {
@@ -16,6 +17,9 @@ namespace Arex.Examples
         public DebugPanel debugPanel;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        [Inject] IARSession session;
+        [Inject] IARPlaneManager planeManager;
 
         void printLog(string msg)
         {
@@ -71,13 +75,12 @@ namespace Arex.Examples
                 }
             }).AddTo(this);
 
-            var session = ARServiceLocator.Instant.GetSession();
-            session?.State.Subscribe(state =>
+            session.State.Subscribe(state =>
             {
                 printLog($"Session: {state},{session.LostReason}");
             }).AddTo(this);
 
-            ARServiceLocator.Instant.GetPlaneManager()?.DebugStatus.Subscribe(msg =>
+            planeManager.DebugStatus.Subscribe(msg =>
             {
                 printLog($"PlaneManager: {msg}");
             }).AddTo(this);

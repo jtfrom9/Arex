@@ -22,8 +22,6 @@ namespace Arex.ARFoundation
 
         void Awake()
         {
-            ARServiceLocator.Instant.Register(this);
-
             session = GetComponent<ARSession>();
             Assert.IsNotNull(session);
         }

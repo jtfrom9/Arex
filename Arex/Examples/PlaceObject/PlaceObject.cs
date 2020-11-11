@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UniRx;
 using UniRx.Triggers;
 using InputObservable;
+using Zenject;
 
 namespace Arex.Examples
 {
@@ -13,15 +14,11 @@ namespace Arex.Examples
         [SerializeField] Camera mainCamera;
         [SerializeField] GameObject prefab;
 
-        IARPlaneManager planeManager;
-        IARPlaneRaycastManager raycastManager;
-
+        [Inject] IARPlaneManager planeManager;
+        [Inject] IARPlaneRaycastManager raycastManager;
 
         void Start()
         {
-            this.planeManager = ARServiceLocator.Instant.GetPlaneManager();
-            this.raycastManager = ARServiceLocator.Instant.GetPlaneRaycastManager();
-
             this.planeManager.EnableSearchPlanes = true;
 
             var ictx = this.DefaultInputContext();

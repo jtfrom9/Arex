@@ -12,7 +12,6 @@ namespace Arex.ARFoundation
 
         void Awake()
         {
-            ARServiceLocator.Instant.Register(this);
             occlusionManager = GetComponent<AROcclusionManager>();
         }
 
