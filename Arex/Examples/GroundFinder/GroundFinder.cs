@@ -24,7 +24,6 @@ namespace Arex.Examples
     [RequireComponent(typeof(PlaneScanner))]
     public class GroundFinder : MonoBehaviour
     {
-        public Transform cameraTransform;
         public Button scanButton;
         // public Button clearButton;
         public DebugPanel debugPanel;
@@ -35,6 +34,7 @@ namespace Arex.Examples
         [SerializeField] Material groundMaterial = default;
 
         PlaneScanner planeScanner;
+        [Inject] IARCamera arCamera = default;
         [Inject] IAROcclusionManager occlusionManager = default;
         IARPlane groundPlane = null;
         Material matBackup;
@@ -101,7 +101,7 @@ namespace Arex.Examples
 
         async UniTask scanPlane(CancellationToken token)
         {
-            var currentPosition = cameraTransform.position;
+            var currentPosition = arCamera.transform.position;
             setAllPlaneVisible(true);
             setGroundMaterial(null);
 
@@ -175,11 +175,11 @@ namespace Arex.Examples
 
         CancellationToken watchCameraMove(CompositeDisposable disposable)
         {
-            var currentPosition = cameraTransform.position;
+            var currentPosition = arCamera.transform.position;
             var cts = new CancellationTokenSource();
             this.UpdateAsObservable().Subscribe(_ =>
             {
-                var distance = (currentPosition - cameraTransform.position).magnitude;
+                var distance = (currentPosition - arCamera.transform.position).magnitude;
                 if (distance > condition.radius)
                 {
                     debugPanel.PrintLog("Moved too far. cancel plane scan");

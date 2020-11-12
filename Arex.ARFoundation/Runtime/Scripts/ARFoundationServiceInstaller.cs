@@ -24,6 +24,7 @@ namespace Arex.ARFoundation
                 {
                     Container.Bind<IARPlaneManager>().FromInstance(arexPlaneManager).AsSingle();
                     Container.Bind<IARPlaneRaycastManager>().FromInstance(arexPlaneManager).AsSingle();
+                    Container.Bind<IARCamera>().FromInstance(arexPlaneManager).AsSingle();
                 }
 
                 var arexOcclusionManager = origin.camera.gameObject.GetComponent<ARFoundationOcclusionManager>();
