@@ -39,10 +39,15 @@ namespace Arex
     public class PlaneScanner : MonoBehaviour
     {
         IUserGuidelineController guidelineController;
-        [Inject] IARSession session;
-        [Inject] IARPlaneManager planeManager_;
+        IARSession session;
+        IARPlaneManager planeManager_;
 
-        CancellationTokenSource tokenSource;
+        [Inject]
+        void Inject(IARSession session, IARPlaneManager planeManager_)
+        {
+            this.session = session;
+            this.planeManager_ = planeManager_;
+        }
 
         public IARPlaneManager planeManager { get => planeManager_; }
 
@@ -180,15 +185,6 @@ namespace Arex
                 ret.result = PlaneScanResult.Cancel;
             }
             return ret;
-        }
-
-        void OnDestroy()
-        {
-            if (this.tokenSource != null)
-            {
-                this.tokenSource.Cancel();
-                this.tokenSource.Dispose();
-            }
         }
     }
 }

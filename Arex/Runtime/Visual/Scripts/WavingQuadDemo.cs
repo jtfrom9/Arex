@@ -6,7 +6,7 @@ namespace Arex.Visual
 {
     public class WavingQuadDemo : MonoBehaviour
     {
-        [SerializeField] WavingQuad wavingQuad;
+        [SerializeField] WavingQuad wavingQuad = default;
 
         float y = 0;
         float diff = 0.01f;

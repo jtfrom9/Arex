@@ -178,45 +178,7 @@ namespace Arex.ARFoundation
         IObservable<IARPlane> IARPlaneManager.Updated { get => updatedSubject; }
         IObservable<IARPlane> IARPlaneManager.Removed { get => removedSubject; }
 
-        async Task<IARPlane> IARPlaneManager.SearchAnchoredPlane()
-        {
-            return null;
-        }
-
         public IEnumerable<IARPlane> planes { get => planeDicts.Values; }
-
-        // public void Remove(IARPlane plane) {
-        //     if (planeManager.enabled)
-        //     {
-        //         Debug.LogError("failed to Remove");
-        //         return;
-        //     }
-        //     if(planeDicts.ContainsValue(plane)) {
-        //         var nativePlane = planeDicts.First(e => e.Value == plane).Key;
-        //         planeDicts.Remove(nativePlane);
-        //         Destroy(nativePlane.gameObject);
-        //     }
-        // }
-
-        // public async UniTask RemoveAll()
-        // {
-        //     Debug.Log("RemoveAll");
-        //     if (planeManager.enabled)
-        //     {
-        //         Debug.LogError("failed to RemoveAll");
-        //         return;
-        //     }
-        //     // foreach(var nativePlane in planeDicts.Keys) {
-        //     //     Debug.Log($"removed #{planeDicts[nativePlane].id}");
-        //     //     Destroy(nativePlane.gameObject);
-        //     // }
-        //     var bakup = planeManager.currentDetectionMode;
-        //     planeManager.requestedDetectionMode = UnityEngine.XR.ARSubsystems.PlaneDetectionMode.None;
-        //     await UniTask.DelayFrame(10);
-        //     planeManager.requestedDetectionMode = bakup;
-        //     await UniTask.DelayFrame(10);
-        //     planeDicts.Clear();
-        // }
 
         bool IARPlaneRaycastManager.Raycast(Vector2 pos, out RaycastHit hit)
         {

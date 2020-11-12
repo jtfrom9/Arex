@@ -10,10 +10,10 @@ namespace Arex.Examples
 {
     public class PlaneSelect : MonoBehaviour
     {
-        [Inject] IARPlaneManager planeManager;
-        [Inject] IARPlaneRaycastManager raycastManager;
+        [Inject] IARPlaneManager planeManager = default;
+        [Inject] IARPlaneRaycastManager raycastManager = default;
 
-        [SerializeField] GameObject prefab;
+        [SerializeField] GameObject prefab = default;
 
         GameObject target;
 

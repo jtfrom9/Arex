@@ -30,7 +30,7 @@ namespace Arex.Examples
         public void PrintLog(string msg)
         {
             logLines.Add($"{System.DateTime.Now.ToString("HH:mm:ss")} | {msg}");
-            if (logLines.Count > 5)
+            if (logLines.Count > lineOfLog)
                 logLines.RemoveAt(0);
             textCache = string.Join("\n", logLines);
             debugText.text = textCache;

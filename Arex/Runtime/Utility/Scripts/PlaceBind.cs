@@ -6,8 +6,8 @@ namespace Arex
 {
     public class PlaceBind : MonoBehaviour
     {
-        [SerializeField] Transform target;
-        [SerializeField] Vector3 relative;
+        [SerializeField] Transform target = default;
+        [SerializeField] Vector3 relative = default;
 
         void Update()
         {

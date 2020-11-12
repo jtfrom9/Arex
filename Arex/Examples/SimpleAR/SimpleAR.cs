@@ -21,9 +21,9 @@ namespace Arex.Examples
         [SerializeField] bool initVisiblePlane = true;
         [SerializeField] bool initOcclusion = false;
 
-        [Inject] IARSession session;
-        [Inject] IARPlaneManager planeManager;
-        [Inject] IAROcclusionManager occlusionManager;
+        [Inject] IARSession session = default;
+        [Inject] IARPlaneManager planeManager = default;
+        [Inject] IAROcclusionManager occlusionManager = default;
 
         // public void Init(IARSession session, IARPlaneManager planeManager)
         // {

@@ -6,7 +6,7 @@ namespace Arex.Visual
 {
     public class WavingQuad : MonoBehaviour
     {
-        [SerializeField] GameObject quad;
+        [SerializeField] GameObject quad = default;
 
         public float offsetY {
             get => quad.transform.position.y;

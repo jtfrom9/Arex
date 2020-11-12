@@ -20,8 +20,6 @@ namespace Arex
         IObservable<IARPlane> Added { get; }
         IObservable<IARPlane> Updated { get; }
         IObservable<IARPlane> Removed { get; }
-        Task<IARPlane> SearchAnchoredPlane();
-
         IEnumerable<IARPlane> planes { get; }
     }
 

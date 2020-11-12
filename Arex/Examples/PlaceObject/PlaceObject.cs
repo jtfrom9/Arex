@@ -11,11 +11,10 @@ namespace Arex.Examples
 {
     public class PlaceObject : MonoBehaviour
     {
-        [SerializeField] Camera mainCamera;
-        [SerializeField] GameObject prefab;
+        [SerializeField] GameObject prefab = default;
 
-        [Inject] IARPlaneManager planeManager;
-        [Inject] IARPlaneRaycastManager raycastManager;
+        [Inject] IARPlaneManager planeManager = default;
+        [Inject] IARPlaneRaycastManager raycastManager = default;
 
         void Start()
         {

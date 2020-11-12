@@ -18,8 +18,8 @@ namespace Arex.Examples
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-        [Inject] IARSession session;
-        [Inject] IARPlaneManager planeManager;
+        [Inject] IARSession session = default;
+        [Inject] IARPlaneManager planeManager = default;
 
         void printLog(string msg)
         {

@@ -31,11 +31,11 @@ namespace Arex.Examples
         public Toggle occulusionToggle;
         public Slider groundYSlider;
 
-        [SerializeField] GroudFindCondition condition;
-        [SerializeField] Material groundMaterial;
+        [SerializeField] GroudFindCondition condition = default;
+        [SerializeField] Material groundMaterial = default;
 
         PlaneScanner planeScanner;
-        [Inject] IAROcclusionManager occlusionManager;
+        [Inject] IAROcclusionManager occlusionManager = default;
         IARPlane groundPlane = null;
         Material matBackup;
         GameObject groundBase;
