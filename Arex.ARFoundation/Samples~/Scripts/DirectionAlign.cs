@@ -23,6 +23,8 @@ namespace Arex.ARFoundation
         void Update()
         {
             var sb = new StringBuilder(1024);
+            sb.AppendFormat("Compass: {0}, {1}",
+                Input.compass.trueHeading, Input.compass.magneticHeading).AppendLine();
             sb.AppendFormat("Origin: {0}, {1}",
                 this.origin.transform.position.ToString(),
                 this.origin.transform.rotation.eulerAngles.ToString()).AppendLine();
