@@ -9,17 +9,17 @@ using UniRx.Triggers;
 namespace Arex.ARFoundation
 {
     [RequireComponent(typeof(ARPlane))]
-    public class ARFoundationPlane : MonoBehaviour, IARPlane
+    public class ArexARFoundationPlane : MonoBehaviour, IARPlane
     {
         ARPlane nativePlane;
         int _id = -1;
-        ARFoundationPlane subsumePlane;
+        ArexARFoundationPlane subsumePlane;
         ARPlaneDebugFlag flag;
         IDisposable debugTextDisposable;
         MeshRenderer meshRenderer;
         float? areaCalculated;
 
-        public ARFoundationPlaneManager manager { private get; set; }
+        public ArexARFoundationPlaneManager manager { private get; set; }
 
         object IARPlane.internalObject { get => nativePlane; }
         public int id
@@ -43,7 +43,7 @@ namespace Arex.ARFoundation
                 }
                 if (this.subsumePlane == null)
                 {
-                    this.subsumePlane = nativePlane.subsumedBy.gameObject.GetComponent<ARFoundationPlane>();
+                    this.subsumePlane = nativePlane.subsumedBy.gameObject.GetComponent<ArexARFoundationPlane>();
                 }
                 return this.subsumePlane;
             }

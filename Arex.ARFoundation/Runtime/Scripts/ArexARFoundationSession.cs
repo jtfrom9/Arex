@@ -7,7 +7,7 @@ using UniRx;
 
 namespace Arex.ARFoundation
 {
-    public class ARFoundationSession : MonoBehaviour, IARSession
+    public class ArexARFoundationSession : MonoBehaviour, IARSession
     {
         ARSession session;
         ReactiveProperty<ARSessionState> stateProp = new ReactiveProperty<ARSessionState>(ARSessionState.Unsupported);

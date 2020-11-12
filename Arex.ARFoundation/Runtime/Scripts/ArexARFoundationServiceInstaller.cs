@@ -4,13 +4,13 @@ using Zenject;
 
 namespace Arex.ARFoundation
 {
-    public class ARFoundationServiceInstaller : MonoInstaller
+    public class ArexARFoundationServiceInstaller : MonoInstaller
     {
         public override void InstallBindings()
         {
             var session = GameObject.FindObjectOfType<ARSession>();
             if(session!=null) {
-                var arexSession = session.gameObject.GetComponent<ARFoundationSession>();
+                var arexSession = session.gameObject.GetComponent<ArexARFoundationSession>();
                 if (arexSession != null)
                 {
                     Container.Bind<IARSession>().FromInstance(arexSession).AsSingle();
@@ -19,7 +19,7 @@ namespace Arex.ARFoundation
 
             var origin = GameObject.FindObjectOfType<ARSessionOrigin>();
             if(origin!=null) {
-                var arexPlaneManager = origin.gameObject.GetComponent<ARFoundationPlaneManager>();
+                var arexPlaneManager = origin.gameObject.GetComponent<ArexARFoundationPlaneManager>();
                 if (arexPlaneManager != null)
                 {
                     Container.Bind<IARPlaneManager>().FromInstance(arexPlaneManager).AsSingle();
@@ -27,7 +27,7 @@ namespace Arex.ARFoundation
                     Container.Bind<IARCamera>().FromInstance(arexPlaneManager).AsSingle();
                 }
 
-                var arexOcclusionManager = origin.camera.gameObject.GetComponent<ARFoundationOcclusionManager>();
+                var arexOcclusionManager = origin.camera.gameObject.GetComponent<ArexARFoundationOcclusionManager>();
                 if(arexOcclusionManager!=null) {
                     Container.Bind<IAROcclusionManager>().FromInstance(arexOcclusionManager).AsSingle();
                 }

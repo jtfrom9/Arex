@@ -8,7 +8,7 @@ using UniRx;
 
 namespace Arex.ARFoundation
 {
-    public class ARFoundationDirectionAlignment : MonoBehaviour
+    public class ArexARFoundationDirectionAlignment : MonoBehaviour
     {
         ILocationDataProvider locationDataProvider;
         ARSessionOrigin origin;

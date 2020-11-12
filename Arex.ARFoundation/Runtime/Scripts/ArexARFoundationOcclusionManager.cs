@@ -6,7 +6,7 @@ using UnityEngine.XR.ARFoundation;
 namespace Arex.ARFoundation
 {
     [RequireComponent(typeof(AROcclusionManager))]
-    public class ARFoundationOcclusionManager : MonoBehaviour, IAROcclusionManager
+    public class ArexARFoundationOcclusionManager : MonoBehaviour, IAROcclusionManager
     {
         AROcclusionManager occlusionManager;
 

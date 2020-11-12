@@ -29,7 +29,7 @@ namespace Arex.ARFoundation.Tests
         public void FlagTest()
         {
             var go = new GameObject();
-            var plane = go.AddComponent<ARFoundationPlane>();
+            var plane = go.AddComponent<ArexARFoundationPlane>();
             plane.id = 0;
             Assert.That(plane, Is.Not.Null);
             plane.Flag.ShouldBe(0);

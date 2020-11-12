@@ -9,7 +9,7 @@ using Arex;
 namespace Arex.ARFoundation
 {
     [RequireComponent(typeof(ARPlane))]
-    [RequireComponent(typeof(ARFoundationPlane))]
+    [RequireComponent(typeof(ArexARFoundationPlane))]
     public class ARPlaneDebug : MonoBehaviour
     {
         public TrackingState trackingState;
@@ -27,7 +27,7 @@ namespace Arex.ARFoundation
         void Awake()
         {
             nativePlane = GetComponent<ARPlane>();
-            plane = GetComponent<ARFoundationPlane>() as IARPlane;
+            plane = GetComponent<ArexARFoundationPlane>() as IARPlane;
 
             Observable.FromEvent<ARPlaneBoundaryChangedEventArgs>(h => nativePlane.boundaryChanged += h, h => nativePlane.boundaryChanged -= h)
                 .Subscribe(e => {
