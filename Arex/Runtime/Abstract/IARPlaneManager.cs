@@ -40,5 +40,10 @@ namespace Arex
         {
             return pm.planes.Where(plane => !plane.subsumed());
         }
+
+        public static IEnumerable<IARPlane> ActivePlanes(this IARPlaneManager pm, List<IARPlane> excludes)
+        {
+            return pm.planes.Where(plane => !plane.subsumed() && !excludes.Contains(plane));
+        }
     }
 }
