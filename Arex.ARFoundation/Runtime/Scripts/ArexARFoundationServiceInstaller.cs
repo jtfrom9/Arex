@@ -9,28 +9,34 @@ namespace Arex.ARFoundation
         public override void InstallBindings()
         {
             var session = GameObject.FindObjectOfType<ARSession>();
-            if(session!=null) {
+            if (session != null)
+            {
                 var arexSession = session.gameObject.GetComponent<ArexARFoundationSession>();
-                if (arexSession != null)
+                if (arexSession == null)
                 {
-                    Container.Bind<IARSession>().FromInstance(arexSession).AsSingle();
+                    arexSession = session.gameObject.AddComponent<ArexARFoundationSession>();
                 }
+                Container.Bind<IARSession>().FromInstance(arexSession).AsSingle();
             }
 
             var origin = GameObject.FindObjectOfType<ARSessionOrigin>();
-            if(origin!=null) {
+            if (origin != null)
+            {
                 var arexPlaneManager = origin.gameObject.GetComponent<ArexARFoundationPlaneManager>();
-                if (arexPlaneManager != null)
+                if (arexPlaneManager == null)
                 {
-                    Container.Bind<IARPlaneManager>().FromInstance(arexPlaneManager).AsSingle();
-                    Container.Bind<IARPlaneRaycastManager>().FromInstance(arexPlaneManager).AsSingle();
-                    Container.Bind<IARCamera>().FromInstance(arexPlaneManager).AsSingle();
+                    arexPlaneManager = origin.gameObject.AddComponent<ArexARFoundationPlaneManager>();
                 }
+                Container.Bind<IARPlaneManager>().FromInstance(arexPlaneManager).AsSingle();
+                Container.Bind<IARPlaneRaycastManager>().FromInstance(arexPlaneManager).AsSingle();
+                Container.Bind<IARCamera>().FromInstance(arexPlaneManager).AsSingle();
 
                 var arexOcclusionManager = origin.camera.gameObject.GetComponent<ArexARFoundationOcclusionManager>();
-                if(arexOcclusionManager!=null) {
-                    Container.Bind<IAROcclusionManager>().FromInstance(arexOcclusionManager).AsSingle();
+                if (arexOcclusionManager == null)
+                {
+                    arexOcclusionManager = origin.camera.gameObject.AddComponent<ArexARFoundationOcclusionManager>();
                 }
+                Container.Bind<IAROcclusionManager>().FromInstance(arexOcclusionManager).AsSingle();
             }
         }
     }
