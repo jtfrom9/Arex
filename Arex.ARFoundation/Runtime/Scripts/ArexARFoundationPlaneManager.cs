@@ -15,7 +15,7 @@ namespace Arex.ARFoundation
     [RequireComponent(typeof(ARPlaneManager))]
     [RequireComponent(typeof(ARRaycastManager))]
     [RequireComponent(typeof(ARAnchorManager))]
-    public class ArexARFoundationPlaneManager : MonoBehaviour, IARPlaneManager, IARPlaneRaycastManager, IARCamera
+    public class ArexARFoundationPlaneManager : MonoBehaviour, IARPlaneManager, IARPlaneRaycastManager
     {
         [SerializeField] bool inspectorDebug = false;
 
@@ -23,7 +23,6 @@ namespace Arex.ARFoundation
         ARPlaneManager planeManager;
         ARRaycastManager raycastManager;
         ARAnchorManager anchorManager;
-        AROcclusionManager occlusionManager;
         int idCount = 0;
 
         ReactiveProperty<string> debugStatusProp = new ReactiveProperty<string>();
@@ -41,7 +40,6 @@ namespace Arex.ARFoundation
             planeManager = GetComponent<ARPlaneManager>();
             raycastManager = GetComponent<ARRaycastManager>();
             anchorManager = GetComponent<ARAnchorManager>();
-            occlusionManager = GetComponentInChildren<AROcclusionManager>();
             StopSearchPlanes();
         }
 
@@ -220,10 +218,6 @@ namespace Arex.ARFoundation
                 anchorManager.RemoveAnchor(anchorDicts[anchor]);
                 anchorDicts.Remove(anchor);
             }
-        }
-
-        Transform IARCamera.transform {
-            get => origin.camera.transform;
         }
     }
 }
