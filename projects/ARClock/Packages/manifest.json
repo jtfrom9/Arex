@@ -4,6 +4,7 @@
     "com.jtfrom9.arex": "file:../Arex/",
     "com.jtfrom9.arex.arfoundation": "file:../Arex.ARFoundation",
     "com.jtfrom9.input-observable": "0.1.3",
+    "com.kyrylokuzyk.arfoundationremote": "file:../plugins/ARFoundationRemoteSource",
     "com.svermeulen.extenject": "9.2.0-stcf3",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ide.rider": "1.1.4",
