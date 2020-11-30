@@ -8,9 +8,9 @@
       "url": "https://package.openupm.com"
     },
     "com.jtfrom9.arex": {
-      "version": "file:../Arex",
+      "version": "file:Arex",
       "depth": 0,
-      "source": "local",
+      "source": "embedded",
       "dependencies": {
         "com.cysharp.unitask": "2.0.36",
         "com.neuecc.unirx": "7.1.0",
@@ -19,9 +19,9 @@
       }
     },
     "com.jtfrom9.arex.arfoundation": {
-      "version": "file:../Arex.ARFoundation",
+      "version": "file:Arex.ARFoundation",
       "depth": 0,
-      "source": "local",
+      "source": "embedded",
       "dependencies": {
         "com.unity.xr.arfoundation": "4.1.0-preview.9",
         "com.unity.xr.arcore": "4.1.0-preview.9",
@@ -39,9 +39,9 @@
       "url": "https://package.openupm.com"
     },
     "com.jtfrom9.vis2k-mirror": {
-      "version": "file:../Mirror",
+      "version": "file:Mirror",
       "depth": 0,
-      "source": "local",
+      "source": "embedded",
       "dependencies": {}
     },
     "com.kyrylokuzyk.arfoundationremote": {
